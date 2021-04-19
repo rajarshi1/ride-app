@@ -1,5 +1,4 @@
-const { SET_DEFERRED } = require('sequelize/types/lib/deferrable');
-const crypto = require('../crypto');
+const crypto = require('../../crypto');
 
 module.exports = (sequelize, Sequelize) => {
     const insurance = sequelize.define('insurance', {
@@ -26,11 +25,11 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: true,
         },
         insurance_valid_till:{
-            type: Sequelize.DATETIME,
+            type: Sequelize.DATE,
             allowNull: true,
         },
         status:{
-            type:Sequelize.TINYINT,
+            type:Sequelize.INTEGER,
             defaultValue:1
         },
         is_deleted: {

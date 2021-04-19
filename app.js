@@ -34,7 +34,7 @@ app.use('/', (req, res) => {
 
 //db sequelize
 // const db = require('./models/index')
-// db.sequelize.sync();
+// db.sequelize.sync({force:true});
 
 // Server
 const port = process.env.PORT || 3033;

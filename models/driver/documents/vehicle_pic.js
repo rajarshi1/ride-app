@@ -1,4 +1,4 @@
-const crypto = require('../crypto');
+const crypto = require('../../crypto');
 
 module.exports = (sequelize, Sequelize) => {
     const vehicle_pic = sequelize.define('vehicle_pic', {
@@ -17,7 +17,7 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false,
         },
         status:{
-            type:Sequelize.TINYINT,
+            type:Sequelize.INTEGER,
             defaultValue:1
         },
         is_deleted: {

@@ -24,13 +24,12 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: false,
         },
-        profile_pic_id:{
+        profile_pic_id:{ 
             type: Sequelize.INTEGER,
             allowNull: false,
         },
-        status:{
+        status_id:{
             type:Sequelize.INTEGER,
-            defaultValue:1
         },
         vehicle_pic_id:{
             type:Sequelize.INTEGER,
@@ -42,5 +41,5 @@ module.exports = (sequelize, Sequelize) => {
         },
     })
 
-    return otp_verify_driver
+    return driver_documents
 }

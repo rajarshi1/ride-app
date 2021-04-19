@@ -21,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false,
         },
         expiry_date:{
-            type: Sequelize.DATETIME,
+            type: Sequelize.DATE,
             allowNull: false,
         },
         is_deleted: {
