@@ -40,7 +40,7 @@ db.users = require('./user/user_model')(sequelize, Sequelize);
 db.otp_user = require('./user/otp_verify_user')(sequelize, Sequelize);
 
 // defining associations
-db.driver.belongsTo(db.otp_driver, {
+db.otp_driver.belongsTo(db.driver, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
@@ -48,7 +48,7 @@ db.driver.belongsTo(db.otp_driver, {
     }
 })
 
-db.driver.belongsTo(db.driver_documents, {
+db.driver_documents.belongsTo(db.driver, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
@@ -56,22 +56,14 @@ db.driver.belongsTo(db.driver_documents, {
     }
 })
 
-db.driver.belongsTo(db.insurance, {
+db.insurance.belongsTo(db.driver, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
         onDelete: 'CASCADE'
     }
 })
-db.driver.belongsTo(db.profile_pic, {
-    foreignKey: {
-        name: "driver_id",
-        allowNull: false,
-        onDelete: 'CASCADE'
-    }
-})
-
-db.driver.belongsTo(db.address_proof, {
+db.profile_pic.belongsTo(db.driver, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
@@ -79,7 +71,7 @@ db.driver.belongsTo(db.address_proof, {
     }
 })
 
-db.driver.belongsTo(db.driving_licence, {
+db.address_proof.belongsTo(db.driver, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
@@ -87,7 +79,7 @@ db.driver.belongsTo(db.driving_licence, {
     }
 })
 
-db.driver.belongsTo(db.vehicle_pic, {
+db.driving_licence.belongsTo(db.driver, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
@@ -95,7 +87,15 @@ db.driver.belongsTo(db.vehicle_pic, {
     }
 })
 
-db.insurance.belongsTo(db.driver_documents, {
+db.vehicle_pic.belongsTo(db.driver, {
+    foreignKey: {
+        name: "driver_id",
+        allowNull: false,
+        onDelete: 'CASCADE'
+    }
+})
+
+db.driver_documents.belongsTo(db.insurance, {
     foreignKey: {
         name: "insurance_id",
         allowNull: false,
@@ -103,7 +103,7 @@ db.insurance.belongsTo(db.driver_documents, {
     }
 })
 
-db.profile_pic.belongsTo(db.driver_documents, {
+db.driver_documents.belongsTo(db.profile_pic, {
     foreignKey: {
         name: "profile_pic_id",
         allowNull: false,
@@ -111,7 +111,7 @@ db.profile_pic.belongsTo(db.driver_documents, {
     }
 })
 
-db.driving_licence.belongsTo(db.driver_documents, {
+db.driver_documents.belongsTo(db.driving_licence, {
     foreignKey: {
         name: "dl_id",
         allowNull: false,
@@ -119,7 +119,7 @@ db.driving_licence.belongsTo(db.driver_documents, {
     }
 })
 
-db.address_proof.belongsTo(db.driver_documents, {
+db.driver_documents.belongsTo(db.address_proof, {
     foreignKey: {
         name: "address_proof_id",
         allowNull: false,
@@ -127,15 +127,15 @@ db.address_proof.belongsTo(db.driver_documents, {
     }
 })
 
-db.vehicle_pic.belongsTo(db.driver_documents, {
+db.driver_documents.belongsTo(db.vehicle_pic, {
     foreignKey: {
-        name: "profile_pic_id",
+        name: "vehicle_pic_id",
         allowNull: false,
         onDelete: 'CASCADE'
     }
 })
 
-db.document_status.belongsTo(db.driver_documents, {
+db.driver_documents.belongsTo(db.document_status, {
     foreignKey: {
         name: "status_id",
         allowNull: false,
@@ -143,7 +143,7 @@ db.document_status.belongsTo(db.driver_documents, {
     }
 })
 
-db.users.belongsTo(db.otp_user, {
+db.otp_user.belongsTo(db.users, {
     foreignKey: {
         name: "driver_id",
         allowNull: false,
