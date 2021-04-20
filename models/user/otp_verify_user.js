@@ -9,11 +9,11 @@ module.exports = (sequelize, Sequelize) => {
             autoIncrement: true
         },
         user_id: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
             allowNull: false,
         },
         otp: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
             allowNull: false,
         },
         otp_token: {
@@ -21,12 +21,12 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false,
         },
         expiry_date: { 
-            type: Sequelize.STRING,
+            type: Sequelize.DATE,
             allowNull: false,
         },
         is_deleted :{
-            type: Sequelize.STRING,
-            allowNull: false,
+            type: Sequelize.TINYINT,
+            defaultValue:0
         },
     })
 

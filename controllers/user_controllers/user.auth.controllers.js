@@ -3,16 +3,9 @@ const config = require('../../config/auth.config')
 const db = require('../../models');
 const response = require('../../helpers/response.helper');
 let { v4: uuidv4 } = require('uuid');
-const { users, otp_driver } = require('../../models');
-const Drivers = db.driver;
-const OTP_Driver = db.otp_driver;
-const DriverDocs = db.driver_documents;
-const DocStatus = db.document_status;
-const AddressProof = db.address_proof;
-const DrivingLicence = db.driving_licence;
-const Insurance = db.insurance;
-const ProfilePic = db.profile_pic;
-const VehiclePic = db.vehicle_pic;
+const User = db.users;
+const OTP_User = db.otp_user;
+
 
 function generateOtp(){
     return '1111'
@@ -20,40 +13,39 @@ function generateOtp(){
 
 exports.SignIn = async (req, res) => {
     const phone_no = req.body.phone_no;
-    console.log(req.body);
     if (phone_no == "" || phone_no == null) {
         return response.responseHelper(res, true, "Field Required", "Phone number required");
     }
     try {
-        let phnNumber = await Drivers.findOne({
+        let phnNumber = await User.findOne({
             where: {
                 phone: phone_no,
             },
         })
         if (phnNumber) {
-            var driver = phnNumber;
+            var user = phnNumber;
         }
         else {
-            driver = await Drivers.create({
+            user = await User.create({
                 phone: phone_no
             })
         }
-        if (!driver) {
+        if (!user) {
             return response.responseHelper(res, true, "Can't create user", "Somethis went wrong");
         } else {
             let token = uuidv4();
             let date = new Date();
             const data = {
                 token,
-                driver_id: driver.id,
+                user_id: user.id,
             }
 
             let oldDateObj = new Date();
             let newDateObj = new Date();
             newDateObj.setTime(oldDateObj.getTime() + (15 * 60 * 1000));
             let otp = generateOtp();
-            let otpToken = await OTP_Driver.create({
-                driver_id: driver.id,
+            let otpToken = await OTP_User.create({
+                user_id: user.id,
                 otp: otp,
                 otp_token: token,
                 expiry_date: newDateObj,
@@ -72,7 +64,7 @@ exports.VerifyOtp = async (req, res) => {
     const otp = req.body.otp;
 
     try {
-        let otpVerify = await OTP_Driver.findOne({
+        let otpVerify = await OTP_User.findOne({
             where: {
                 otp_token: token,
                 is_deleted: 0,
@@ -88,21 +80,21 @@ exports.VerifyOtp = async (req, res) => {
             else if (otpVerify.otp != otp) {
                 return response.responseHelper(res, false, "Invalid otp", "Failed to verified otp");
             }
-            let driver = await Drivers.findOne({
+            let user = await User.findOne({
                 where: {
-                    id: otpVerify.driver_id,
+                    id: otpVerify.user_id,
                     is_deleted: 0,
                 }
             })
-            if (driver) {
-                await driver.update({
+            if (user) {
+                await user.update({
                     otp_verified: 1,
                 })
             }
             const token = jwt.sign(
                 {
-                    id: driver.id,
-                    phone: driver.phone,
+                    id: user.id,
+                    phone: user.phone,
                 },
                 config.secret,
                 {
@@ -110,7 +102,7 @@ exports.VerifyOtp = async (req, res) => {
                 }
             );
             return response.responseHelper(res, true, {
-                "driver_id": driver.id,
+                "user_id": user.id,
                 "access-token": token
             }, "Login Success");
         }
@@ -127,7 +119,7 @@ exports.ResendOtp = async (req, res) => {
         return response.responseHelper(res,true,"Field required","Invalid token passed");
     }
     try {
-        let lastOtp= await  OTP_Driver.findOne({
+        let lastOtp= await  OTP_User.findOne({
             where:{
                 otp_token:token,
                 is_deleted:0
@@ -139,7 +131,7 @@ exports.ResendOtp = async (req, res) => {
         new_token=uuidv4();
         const data = {
             "token":new_token,
-            "driver_id": lastOtp.driver_id,
+            "user_id": lastOtp.user_id,
         }
         let oldDateObj = new Date();
         let newDateObj = new Date();
