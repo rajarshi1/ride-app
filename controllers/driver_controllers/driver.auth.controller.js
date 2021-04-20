@@ -235,3 +235,23 @@ exports.ProfileInfo = async (req, res) => {
     }
 }
 
+exports.SaveProfilePic= async (req,res) =>{
+    const driver_id= req.driverId;
+    const profile_pic=req.body.profile_pic_url;
+
+    if(profile_pic==="" || profile_pic == null){
+        return response.responseHelper(res,false,"Enter valid url","invalid url passed");
+    }
+    try {
+        let profilePic=await ProfilePic.create({
+            driver_id:driver_id,
+            profile_pic:profile_pic,
+        })
+        if(!profilePic){
+            return response.responseHelper(res, false, "Can't create profile pic", "Something is wrong");
+        }
+        return response.responseHelper(res,true,profilePic,"Successfully saved");
+    } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}

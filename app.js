@@ -35,6 +35,9 @@ app.use('/api',upload);
 const userAuth = require('./routes/user_routes/user_auth');
 app.use('/api/user',userAuth)
 
+const dummy= require('./routes/dummy-data');
+app.use('/api/driver',dummy)
+
 
 // home route
 app.use('/', (req, res) => {
