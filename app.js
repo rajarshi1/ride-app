@@ -25,6 +25,9 @@ app.use(cors({
 const driverAuth = require('./routes/driver_routes/auth');
 app.use('/api/driver',driverAuth)
 
+const upload= require('./routes/upload');
+app.use('/api',upload);
+
 // home route
 app.use('/', (req, res) => {
     res.status(200).json({

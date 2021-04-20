@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config/auth.config.js');
-const response = require('../helpers/response.helper');
-const db = require('../models');
+const config = require('../../config/auth.config');
+const response = require('../../helpers/response.helper');
+const db = require('../../models');
 
-const User = db.user;
+const Driver = db.driver;
 
 const verifyToken = (req, res, next) => {
     const token = req.headers['x-access-token'];
@@ -16,22 +16,22 @@ const verifyToken = (req, res, next) => {
         if (err) {
             response.responseHelper(res, false, 'Unauthorized!', 'Authentication failed');
         }
-        req.userId = decoded.id;
+        req.driverId = decoded.id;
         // console.log(decoded);
         next();
     });
 };
 
-const verifyUser = async(req, res, next) => {
+const verifyDriver = async(req, res, next) => {
     try{
-        const user = await User.findOne({
+        const driver = await Driver.findOne({
             where: {
-                id: req.userId,
+                id: req.driverId,
                 is_deleted:0
             }
         });
-        if(!user) throw 'User not found';
-        req.user = user;
+        if(!driver) throw 'Driver not found';
+        req.driver = driver;
         next();
     }catch(err){
         response.responseHelper(res, false, err, 'Authentication failed');
@@ -40,6 +40,6 @@ const verifyUser = async(req, res, next) => {
 
 const authJwt = {
     verifyToken,
-    verifyUser
+    verifyDriver
 };
 module.exports = authJwt;

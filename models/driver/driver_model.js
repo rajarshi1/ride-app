@@ -43,6 +43,10 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.TINYINT,
             defaultValue:0,
         },
+        isProfileUpdated:{
+            type:Sequelize.TINYINT,
+            defaultValue:0,
+        },
         ifsc_code:{
             type:Sequelize.STRING,
             allowNull:true,

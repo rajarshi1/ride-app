@@ -3,7 +3,8 @@ const config = require('../../config/auth.config')
 const db = require('../../models');
 const response = require('../../helpers/response.helper');
 let { v4: uuidv4 } = require('uuid');
-const { users, otp_driver } = require('../../models');
+const { users, otp_driver, driver } = require('../../models');
+const Validator = require('validator');
 const Drivers = db.driver;
 const OTP_Driver = db.otp_driver;
 const DriverDocs = db.driver_documents;
@@ -133,7 +134,8 @@ exports.VerifyOtp = async (req, res) => {
             );
             return response.responseHelper(res, true, {
                 "driver_id": driver.id,
-                "access-token": token
+                "access-token": token,
+                "profile_details_added":driver.isProfileUpdated,
             }, "Login Success");
         }
     } catch (error) {
@@ -145,22 +147,22 @@ exports.VerifyOtp = async (req, res) => {
 exports.ResendOtp = async (req, res) => {
     let token = req.body.token;
     let date = new Date();
-    if(token=="" || token==null){
-        return response.responseHelper(res,true,"Field required","Invalid token passed");
+    if (token == "" || token == null) {
+        return response.responseHelper(res, true, "Field required", "Invalid token passed");
     }
     try {
-        let lastOtp= await  OTP_Driver.findOne({
-            where:{
-                otp_token:token,
-                is_deleted:0
+        let lastOtp = await OTP_Driver.findOne({
+            where: {
+                otp_token: token,
+                is_deleted: 0
             }
         })
-        if(!lastOtp){
-            return response.responseHelper(res,true,"Invalid token","Wrong token");
+        if (!lastOtp) {
+            return response.responseHelper(res, true, "Invalid token", "Wrong token");
         }
-        new_token=uuidv4();
+        new_token = uuidv4();
         const data = {
-            "token":new_token,
+            "token": new_token,
             "driver_id": lastOtp.driver_id,
         }
         let oldDateObj = new Date();
@@ -176,8 +178,60 @@ exports.ResendOtp = async (req, res) => {
         return response.responseHelper(res, true, data, "Otp sent successfully");
     } catch (error) {
         console.log(error);
-        return response.responseHelper(res,false,"Error","Something went wrong");
+        return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
 
+exports.ProfileInfo = async (req, res) => {
+    const driver_id = req.driverId;
+    const firstname = req.body.firstname;
+    const lastname = req.body.lastname;
+    const email = req.body.email;
+    const DOB = req.body.dob;
+    const gender = req.body.gender;
+    const referral_code = req.body.referral_code;
+
+    if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
+        gender === "" || gender == null) {
+        return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
+    }
+    else if (!Validator.isEmail(email)) {
+        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+    }
+    try {
+        let emailExist = await Drivers.findOne({
+            where: {
+                email: email,
+                is_deleted: 0
+            }
+        })
+        if (emailExist) {
+            return response.responseHelper(res, true, "Email already exists", "Use different one");
+        }
+        let driverProfile = await Drivers.findOne({
+            where: {
+                id: driver_id,
+                is_deleted: 0
+            }
+        })
+        if (!driverProfile) {
+            return response.responseHelper(res, true, "Driver not found", "Invalid id");
+        }
+        let addProfile = await driverProfile.update({
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            DOB:DOB,
+            gender:gender,
+            isProfileUpdated:1,
+        })
+        if(!addProfile){
+            return response.responseHelper(res,false,"Can't update profile","Something is wrong");
+        }
+        return response.responseHelper(res,true,addProfile,"Details are successfully added");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
 
