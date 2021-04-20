@@ -1,9 +1,12 @@
 const express = require("express")
 const router = express.Router()
+const controller=require('../../controllers/driver_controllers/driver.auth.controller');
+// const authJwt = require('../../middleware/verifySignedIn');
 
-const controller = require("../controllers/auth.controller");
-const authJwt = require('../middleware/verifySignedIn');
+router.post('/sign-in', controller.SignIn);
 
-// router.post('/signup', controller.signup)
+router.post('/verify-otp', controller.VerifyOtp);
+
+router.post('/resend-otp', controller.ResendOtp);
 
 module.exports = router;

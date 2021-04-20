@@ -22,8 +22,8 @@ app.use(cors({
     }
 }));
 
-// const user = require('./routes/auth')
-// app.use('/api/account', user)
+const driverAuth = require('./routes/driver_routes/auth');
+app.use('/api/driver',driverAuth)
 
 // home route
 app.use('/', (req, res) => {
@@ -34,7 +34,7 @@ app.use('/', (req, res) => {
 
 //db sequelize
 // const db = require('./models/index')
-// db.sequelize.sync();
+// db.sequelize.sync({});
 
 // Server
 const port = process.env.PORT || 3033;
