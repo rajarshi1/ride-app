@@ -31,6 +31,13 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.TINYINT,
             defaultValue:0,
         },
+        profile_pic:{
+            type:Sequelize.STRING,
+        },
+        isProfileUpdated:{
+            type:Sequelize.TINYINT,
+            defaultValue:0,
+        },
         referral_code:{
             type:Sequelize.STRING,
             allowNull:true,

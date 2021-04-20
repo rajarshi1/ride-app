@@ -22,11 +22,19 @@ app.use(cors({
     }
 }));
 
-const driverAuth = require('./routes/driver_routes/auth');
+//driver auth
+
+const driverAuth = require('./routes/driver_routes/driver_auth');
 app.use('/api/driver',driverAuth)
+
 
 const upload= require('./routes/upload');
 app.use('/api',upload);
+
+//user auth
+const userAuth = require('./routes/user_routes/user_auth');
+app.use('/api/user',userAuth)
+
 
 // home route
 app.use('/', (req, res) => {
@@ -34,6 +42,8 @@ app.use('/', (req, res) => {
         message: "Comride account working"
     })
 })
+
+
 
 //db sequelize
 // const db = require('./models/index')

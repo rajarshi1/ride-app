@@ -145,7 +145,7 @@ db.driver_documents.belongsTo(db.document_status, {
 
 db.otp_user.belongsTo(db.users, {
     foreignKey: {
-        name: "driver_id",
+        name: "user_id",
         allowNull: false,
         onDelete: 'CASCADE'
     }
