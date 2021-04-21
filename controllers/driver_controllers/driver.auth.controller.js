@@ -14,6 +14,7 @@ const DrivingLicence = db.driving_licence;
 const Insurance = db.insurance;
 const ProfilePic = db.profile_pic;
 const VehiclePic = db.vehicle_pic;
+const RegistrationCertificate = db.vehicle_rc;
 
 generateOtp = () => {
     // const OTP = Math.floor(Math.random() * 900000) + 10000;
@@ -325,6 +326,28 @@ exports.SaveVehiclePics=async (req,res)=>{
         }
         return response.responseHelper(res,true,{"data":result},"Success")
     } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.SaveRegistrationCertificate= async (req,res)=>{
+    const driver_id=req.driverId;
+    const registration_certificate=req.body.registration_certificate;
+
+    if(registration_certificate==="" || registration_certificate == null){
+        return response.responseHelper(res,false,"Enter valid url","invalid url passed");
+    }
+    try {
+        let registrationCertificate = await RegistrationCertificate.create({
+            driver_id:driver_id,
+            rc_picture:registration_certificate,
+        })
+        if(!registrationCertificate){
+            return response.responseHelper(res, false, "Can't create addess proof", "Something is wrong");
+        }
+        return response.responseHelper(res,true,registrationCertificate,"Successfully saved");
+    } catch (error) {
+        console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }

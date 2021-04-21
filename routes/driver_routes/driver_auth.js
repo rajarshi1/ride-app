@@ -30,4 +30,8 @@ router.post('/save-vehicle-pics', [
     authJwt.verifyToken, authJwt.verifyDriver
 ], controller.SaveVehiclePics);
 
+router.post('/save-registration-certificate', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveRegistrationCertificate);
+
 module.exports = router;
