@@ -17,6 +17,8 @@ const db = {};
 db.sequelize = sequelize;
 // defining models
 
+db.admin = require('./admin/admin_model')(sequelize,Sequelize);
+
 db.driver = require('./driver/driver_model')(sequelize, Sequelize);
 
 db.otp_driver = require('./driver/otp_verify_driver')(sequelize, Sequelize);
