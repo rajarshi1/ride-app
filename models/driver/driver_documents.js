@@ -35,6 +35,10 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.INTEGER,
             allowNull:false,
         },
+        vahicle_rc_id:{
+            type:Sequelize.INTEGER,
+            allowNull:false,
+        },
         is_deleted: {
             type: Sequelize.INTEGER,
             defaultValue: 0
