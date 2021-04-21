@@ -63,6 +63,10 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.STRING,
             allowNull:true,
         },
+        rating:{
+            type:Sequelize.DOUBLE,
+            defaultValue:0
+        },
         is_deleted: {
             type: Sequelize.INTEGER,
             defaultValue: 0

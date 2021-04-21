@@ -252,6 +252,7 @@ exports.SaveProfilePic= async (req,res) =>{
         }
         return response.responseHelper(res,true,profilePic,"Successfully saved");
     } catch (error) {
+        console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
@@ -300,4 +301,9 @@ exports.SaveAddressProof= async (req,res)=>{
     } catch (error) {
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
+}
+
+exports.SaveVehiclePics=async (req,res)=>{
+    const driver_id= req.driverId;
+   
 }
