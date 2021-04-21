@@ -305,5 +305,26 @@ exports.SaveAddressProof= async (req,res)=>{
 
 exports.SaveVehiclePics=async (req,res)=>{
     const driver_id= req.driverId;
-   
+    console.log(req.body);
+    var vehicle_pic=[];
+    vehicle_pics=req.body.vehicle_pics;
+    let result=[];
+    if(!vehicle_pics.length>0){
+        return response.responseHelper(res,false,"provide valid url","Field required")
+    }
+    try {
+        for(i of vehicle_pics){
+            let vehiclePics= await VehiclePic.create({
+                driver_id:driver_id,
+                pic_url:i
+            })
+            if(!vehiclePics){
+                continue;
+            }
+            result.push(vehiclePics);
+        }
+        return response.responseHelper(res,true,{"data":result},"Success")
+    } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
 }

@@ -26,4 +26,8 @@ router.post('/save-address-proof', [
     authJwt.verifyToken, authJwt.verifyDriver
 ], controller.SaveAddressProof);
 
+router.post('/save-vehicle-pics', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveVehiclePics);
+
 module.exports = router;
