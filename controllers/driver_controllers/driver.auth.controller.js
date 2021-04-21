@@ -255,3 +255,49 @@ exports.SaveProfilePic= async (req,res) =>{
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
+
+exports.SaveDrivingLicence= async (req,res)=>{
+    const driver_id=req.driverId;
+    const dl_no=req.body.dl_no;
+    const dl_front=req.body.dl_front;
+    const dl_back=req.body.dl_back;
+
+    if(dl_no==="" || dl_no == null || dl_front==="" || dl_front== null || dl_back === "" || dl_back == null){
+        return response.responseHelper(res,false,"Enter valid data","Invalid data passed");
+    }
+    try {
+        let drivingLicence=await DrivingLicence.create({
+            driver_id:driver_id,
+            driving_licence_front:dl_front,
+            driving_licence_back:dl_back,
+            dL_no:dl_no
+        })
+        if(!drivingLicence){
+            return response.responseHelper(res, false, "Can't create driving licence", "Something is wrong");
+        }
+        return response.responseHelper(res,true,drivingLicence,"Successfully saved");
+    } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.SaveAddressProof= async (req,res)=>{
+    const driver_id=req.driverId;
+    const address_proof=req.body.address_proof;
+
+    if(address_proof==="" || address_proof == null){
+        return response.responseHelper(res,false,"Enter valid url","invalid url passed");
+    }
+    try {
+        let addressProof=await AddressProof.create({
+            driver_id:driver_id,
+            address_proof:address_proof,
+        })
+        if(!addressProof){
+            return response.responseHelper(res, false, "Can't create addess proof", "Something is wrong");
+        }
+        return response.responseHelper(res,true,addressProof,"Successfully saved");
+    } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
