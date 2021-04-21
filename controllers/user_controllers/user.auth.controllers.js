@@ -3,6 +3,7 @@ const config = require('../../config/auth.config')
 const db = require('../../models');
 const response = require('../../helpers/response.helper');
 let { v4: uuidv4 } = require('uuid');
+const Validator = require('validator');
 const User = db.users;
 const OTP_User = db.otp_user;
 
@@ -147,5 +148,88 @@ exports.ResendOtp = async (req, res) => {
     } catch (error) {
         console.log(error);
         return response.responseHelper(res,false,"Error","Something went wrong");
+    }
+}
+
+exports.ProfileInfo = async (req, res) => {
+    const user_id = req.userId;
+    const firstname = req.body.firstname;
+    const lastname = req.body.lastname;
+    const email = req.body.email;
+    const DOB = req.body.dob;
+    const gender = req.body.gender;
+    const referral_code = req.body.referral_code;
+
+    if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
+        gender === "" || gender == null) {
+        return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
+    }
+    else if (!Validator.isEmail(email)) {
+        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+    }
+    try {
+        let emailExist = await User.findOne({
+            where: {
+                email: email,
+                is_deleted: 0
+            }
+        })
+        if (emailExist) {
+            return response.responseHelper(res, true, "Email already exists", "Use different one");
+        }
+        let userProfile = await User.findOne({
+            where: {
+                id: user_id,
+                is_deleted: 0
+            }
+        })
+        if (!userProfile) {
+            return response.responseHelper(res, true, "User not found", "Invalid id");
+        }
+        let addProfile = await userProfile.update({
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            DOB:DOB,
+            gender:gender,
+            isProfileUpdated:1,
+        })
+        if(!addProfile){
+            return response.responseHelper(res,false,"Can't update profile","Something is wrong");
+        }
+        return response.responseHelper(res,true,addProfile,"Details are successfully added");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.SaveProfilePic= async (req,res) =>{
+    const user_id= req.userId;
+    const profile_pic=req.body.profile_pic_url;
+
+    if(profile_pic==="" || profile_pic == null){
+        return response.responseHelper(res,false,"Enter valid url","invalid url passed");
+    }
+    try {
+        let user=await User.findOne({
+            where:{
+                id:user_id,
+                is_deleted:0,
+            }
+        })
+        if(!user){
+            return response.responseHelper(res, false, "User not found","Invalid user id");
+        }
+        let profilePic=await user.update({
+            profile_pic:profile_pic,
+        })
+        if(!profilePic){
+            return response.responseHelper(res, false, "Can't update profile pic", "Something is wrong");
+        }
+        return response.responseHelper(res,true,profilePic,"Successfully saved");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
