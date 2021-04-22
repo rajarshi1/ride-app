@@ -28,7 +28,7 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.INTEGER,  /// 1- male 2 - female 3- other
         },
         bank_name:{
-            type:Sequelize.DATE,
+            type:Sequelize.STRING,
             allowNull:true,
         },
         account_holder_name:{

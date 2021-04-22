@@ -14,6 +14,7 @@ const DrivingLicence = db.driving_licence;
 const Insurance = db.insurance;
 const ProfilePic = db.profile_pic;
 const VehiclePic = db.vehicle_pic;
+const RegistrationCertificate = db.vehicle_rc;
 
 generateOtp = () => {
     // const OTP = Math.floor(Math.random() * 900000) + 10000;
@@ -306,7 +307,7 @@ exports.SaveAddressProof= async (req,res)=>{
 exports.SaveVehiclePics=async (req,res)=>{
     const driver_id= req.driverId;
     console.log(req.body);
-    var vehicle_pic=[];
+    var vehicle_pics=[];
     vehicle_pics=req.body.vehicle_pics;
     let result=[];
     if(!vehicle_pics.length>0){
@@ -325,6 +326,99 @@ exports.SaveVehiclePics=async (req,res)=>{
         }
         return response.responseHelper(res,true,{"data":result},"Success")
     } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.SaveRegistrationCertificate= async (req,res)=>{
+    const driver_id=req.driverId;
+    const registration_certificate=req.body.registration_certificate;
+
+    if(registration_certificate==="" || registration_certificate == null){
+        return response.responseHelper(res,false,"Enter valid url","invalid url passed");
+    }
+    try {
+        let registrationCertificate = await RegistrationCertificate.create({
+            driver_id:driver_id,
+            rc_picture:registration_certificate,
+        })
+        if(!registrationCertificate){
+            return response.responseHelper(res, false, "Can't create addess proof", "Something is wrong");
+        }
+        return response.responseHelper(res,true,registrationCertificate,"Successfully saved");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.SaveVehicleInsurance = async (req,res)=>{
+    const driver_id= req.driverId;
+    //console.log(req.body);
+    var vehicle_insurance=[];
+    vehicle_insurance=req.body.vehicle_insurance;
+    let result=[];
+    if(!vehicle_insurance.length>0){
+        return response.responseHelper(res,false,"provide valid url","Field required")
+    }
+    try {
+        for(i of vehicle_insurance){
+            let vehicleInsurance= await Insurance.create({
+                driver_id:driver_id,
+                insurance_pic:i
+            })
+            if(!vehicleInsurance){
+                continue;
+            }
+            result.push(vehicleInsurance);
+        }
+        return response.responseHelper(res,true,{"data":result},"Success")
+    } catch (error) {
+        
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+        
+    }
+}
+
+exports.SaveBankDetails = async (req, res) => {
+    const driver_id = req.driverId;
+    const bankName = req.body.bankName;
+    const accountHolderName = req.body.accountHolderName;
+    const accountNumber = req.body.accountNumber;
+    const confirmAccountNumber = req.body.confirmAccountNumber;
+    const ifsc = req.body.ifsc;
+    const referral_code = req.body.referral_code;
+
+    if (bankName === "" || bankName == null || accountHolderName === "" || accountHolderName == null || accountNumber === "" || accountNumber == null || confirmAccountNumber === "" || confirmAccountNumber == null ||
+    ifsc === "" || ifsc == null) {
+        return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
+    }
+    else if (accountNumber!=confirmAccountNumber) {
+        return response.responseHelper(res, true, "error", "Account numbers do not match");
+    }
+    try {
+        let driverProfile = await Drivers.findOne({
+            where: {
+                id: driver_id,
+                is_deleted: 0
+            }
+        })
+        if (!driverProfile) {
+            return response.responseHelper(res, true, "Driver not found", "Invalid id");
+        }
+        let addBankDetails = await driverProfile.update({
+            bank_name: bankName,
+            account_holder_name: accountHolderName,
+            account_number: accountNumber,
+            ifsc_code:ifsc,
+            isProfileUpdated:1,
+        })
+        if(!addBankDetails){
+            return response.responseHelper(res,false,"Can't update bank details","Something is wrong");
+        }
+        return response.responseHelper(res,true,addBankDetails,"Details are successfully added");
+    } catch (error) {
+        console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
