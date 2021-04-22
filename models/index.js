@@ -11,6 +11,10 @@ const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         acquire: config.pool.acquire,
         idle: config.pool.idle,
     },
+    dialectOptions: {
+        useUTC: true, // for reading from database
+    },
+    timezone: '+00:00',
 });
 
 const db = {};

@@ -12,6 +12,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
         },
+        country_code:{
+            type:Sequelize.STRING,
+            allowNull:false,
+            defaultValue:'91'
+        },
         first_name: {
             type: Sequelize.STRING,
         },
