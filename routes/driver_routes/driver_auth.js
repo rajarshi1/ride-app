@@ -34,4 +34,12 @@ router.post('/save-registration-certificate', [
     authJwt.verifyToken, authJwt.verifyDriver
 ], controller.SaveRegistrationCertificate);
 
+router.post('/save-insurance', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveVehicleInsurance);
+
+router.post('/save-bank-details', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveBankDetails);
+
 module.exports = router;
