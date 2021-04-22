@@ -4,7 +4,7 @@ const db = require('../../models');
 const response = require('../../helpers/response.helper');
 let { v4: uuidv4 } = require('uuid');
 const { users, otp_driver, driver } = require('../../models');
-const {Op} =require("sequelize");
+const { Op } = require("sequelize");
 const Validator = require('validator');
 const Drivers = db.driver;
 const OTP_Driver = db.otp_driver;
@@ -112,7 +112,7 @@ exports.VerifyOtp = async (req, res) => {
         let otpVerify = await OTP_Driver.findOne({
             where: {
                 otp_token: token,
-                is_used:0,
+                is_used: 0,
                 is_deleted: 0,
             }
         })
@@ -176,26 +176,26 @@ exports.ResendOtp = async (req, res) => {
         if (!lastOtp) {
             return response.responseHelper(res, true, "Invalid token", "Wrong token");
         }
-        let dateNow=new Date().toISOString().split('T')[0];
-        let time=new Date().toISOString().split('T')[1];
-        time= time.split('.')[0];
-        dateNow=dateNow+' '+time;
+        let dateNow = new Date().toISOString().split('T')[0];
+        let time = new Date().toISOString().split('T')[1];
+        time = time.split('.')[0];
+        dateNow = dateNow + ' ' + time;
 
-        let timeLimit= new Date(lastOtp.createdAt);
+        let timeLimit = new Date(lastOtp.createdAt);
         console.log(timeLimit.getTime());
-        timeLimit  =new Date(timeLimit.getTime() + (10 * 60 * 1000)).toUTCString();
+        timeLimit = new Date(timeLimit.getTime() + (10 * 60 * 1000)).toUTCString();
         console.log(timeLimit);
 
-        let otpResentTimes=await OTP_Driver.count({
-            where:{
-                driver_id:lastOtp.driver_id,
-                createdAt:{
-                    [Op.between]:[lastOtp.createdAt,timeLimit]
+        let otpResentTimes = await OTP_Driver.count({
+            where: {
+                driver_id: lastOtp.driver_id,
+                createdAt: {
+                    [Op.between]: [lastOtp.createdAt, timeLimit]
                 }
             }
         })
         console.log(otpResentTimes);
-        if(otpResentTimes<=5){
+        if (otpResentTimes <= 5) {
             new_token = uuidv4();
             const data = {
                 "token": new_token,
@@ -206,7 +206,7 @@ exports.ResendOtp = async (req, res) => {
             newDateObj.setTime(oldDateObj.getTime() + (15 * 60 * 1000));
             let otp = generateOtp();
             await OTP_Driver.create({
-                driver_id:lastOtp.driver_id,
+                driver_id: lastOtp.driver_id,
                 otp: otp,
                 otp_token: new_token,
                 expiry_date: newDateObj,
@@ -267,7 +267,16 @@ exports.ProfileInfo = async (req, res) => {
         if (!addProfile) {
             return response.responseHelper(res, false, "Can't update profile", "Something is wrong");
         }
-        return response.responseHelper(res, true, addProfile, "Details are successfully added");
+        let result = {
+            "id": addProfile.id,
+            "firstname": addProfile.first_name,
+            "lastname": addProfile.last_name,
+            "email": addProfile.email,
+            "dob": addProfile.DOB,
+            "gender": addProfile.gender,
+            "referral_code": (addProfile.referral_code==null)?'':addProfile.referral_code
+        }
+        return response.responseHelper(res, true, result, "Details are successfully added");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
