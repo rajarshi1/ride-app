@@ -6,7 +6,8 @@ let { v4: uuidv4 } = require('uuid');
 const Validator = require('validator');
 const User = db.users;
 const OTP_User = db.otp_user;
-const {Op} = require('sequelize')
+const {Op} = require('sequelize');
+const UserReferrals=db.user_referrals;
 
 function generateOtp(){
     return '1111'
@@ -223,6 +224,23 @@ exports.ProfileInfo = async (req, res) => {
         })
         if (!userProfile) {
             return response.responseHelper(res, true, "User not found", "Invalid id");
+        }
+        var refferedBy=null;
+        if(referral_code){
+            var isValidCode= await User.findOne({
+                where:{
+                    referral_code:referral_code
+                }
+            })
+            if(!isValidCode){
+                return response.responseHelper(res, false, "Invalid Code", "Referral code not found");
+            }
+            var referral=await UserReferrals.create({
+                referred_by:isValidCode.id,
+                referred_to:user_id,
+                referral_code:referral_code,
+            })
+            refferedBy=referral.id;
         }
         let addProfile = await userProfile.update({
             first_name: firstname,
