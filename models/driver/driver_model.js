@@ -33,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.INTEGER,  /// 1- male 2 - female 3- other
         },
         bank_id:{
-            type:Sequelize.STRING,
+            type:Sequelize.INTEGER,
             allowNull:true,
         },
         account_holder_name:{
