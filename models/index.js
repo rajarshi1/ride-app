@@ -11,6 +11,10 @@ const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         acquire: config.pool.acquire,
         idle: config.pool.idle,
     },
+    dialectOptions: {
+        useUTC: true, // for reading from database
+    },
+    timezone: '+00:00',
 });
 
 const db = {};
@@ -197,5 +201,7 @@ db.vehicle_rc.belongsTo(db.document_status, {
         name: "status",
     }
 })
+
+db.banks=require('../models/banks_model')(sequelize,Sequelize);
 
 module.exports = db

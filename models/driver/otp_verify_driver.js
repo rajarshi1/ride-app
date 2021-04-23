@@ -24,6 +24,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DATE,
             allowNull: false,
         },
+        is_used:{
+            type:Sequelize.TINYINT,
+            defaultValue:0,
+        },
         is_deleted: {
             type: Sequelize.INTEGER,
             defaultValue: 0
