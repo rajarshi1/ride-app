@@ -208,10 +208,19 @@ exports.ProfileInfo = async (req, res) => {
             gender:gender,
             isProfileUpdated:1,
         })
+        let result = {
+            firstname: firstname,
+            lastname: lastname,
+            email: email,
+            DOB: DOB,
+            gender: gender,
+            referral_code: referral_code
+        }
+
         if(!addProfile){
             return response.responseHelper(res,false,"Can't update profile","Something is wrong");
         }
-        return response.responseHelper(res,true,addProfile,"Details are successfully added");
+        return response.responseHelper(res,true,result,"Details are successfully added");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
