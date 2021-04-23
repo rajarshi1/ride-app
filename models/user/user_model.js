@@ -22,7 +22,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
         },
         DOB:{
-            type:Sequelize.DATE,
+            type:Sequelize.DATEONLY,
         },
         gender:{
             type:Sequelize.INTEGER,  // 1- male 2 - female 3- other

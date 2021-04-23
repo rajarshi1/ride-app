@@ -6,6 +6,7 @@ let { v4: uuidv4 } = require('uuid');
 const Validator = require('validator');
 const User = db.users;
 const OTP_User = db.otp_user;
+const {Op} = require('sequelize')
 
 function generateOtp(){
     return '1111'
@@ -82,6 +83,7 @@ exports.VerifyOtp = async (req, res) => {
                 is_deleted: 0,
             }
         })
+        console.log(otpVerify);
         if (!otpVerify) {
             return response.responseHelper(res, false, "OTP Token Expired", "Failed to verified otp")
         }
@@ -130,38 +132,60 @@ exports.VerifyOtp = async (req, res) => {
 exports.ResendOtp = async (req, res) => {
     let token = req.body.token;
     let date = new Date();
-    if(token=="" || token==null){
-        return response.responseHelper(res,true,"Field required","Invalid token passed");
+    if (token == "" || token == null) {
+        return response.responseHelper(res, true, "Field required", "Invalid token passed");
     }
     try {
-        let lastOtp= await  OTP_User.findOne({
-            where:{
-                otp_token:token,
-                is_deleted:0
+        let lastOtp = await OTP_User.findOne({
+            where: {
+                otp_token: token,
+                is_deleted: 0
             }
         })
-        if(!lastOtp){
-            return response.responseHelper(res,true,"Invalid token","Wrong token");
+        if (!lastOtp) {
+            return response.responseHelper(res, true, "Invalid token", "Wrong token");
         }
-        new_token=uuidv4();
-        const data = {
-            "token":new_token,
-            "user_id": lastOtp.user_id,
-        }
-        let oldDateObj = new Date();
-        let newDateObj = new Date();
-        newDateObj.setTime(oldDateObj.getTime() + (15 * 60 * 1000));
-        let otp = generateOtp();
-        await lastOtp.update({
-            otp: otp,
-            otp_token: new_token,
-            expiry_date: newDateObj,
+        let dateNow = new Date().toISOString().split('T')[0];
+        let time = new Date().toISOString().split('T')[1];
+        time = time.split('.')[0];
+        dateNow = dateNow + ' ' + time;
+
+        let timeLimit = new Date(lastOtp.createdAt);
+        console.log(timeLimit.getTime());
+        timeLimit = new Date(timeLimit.getTime() + (10 * 60 * 1000)).toUTCString();
+        console.log(timeLimit);
+
+        let otpResentTimes = await OTP_User.count({
+            where: {
+                user_id: lastOtp.user_id,
+                createdAt: {
+                    [Op.between]: [lastOtp.createdAt, timeLimit]
+                }
+            }
         })
-        // sendOtp(otp, user.phone_number);
-        return response.responseHelper(res, true, data, "Otp sent successfully");
+        console.log(otpResentTimes);
+        if (otpResentTimes <= 5) {
+            new_token = uuidv4();
+            const data = {
+                "token": new_token,
+            }
+            let oldDateObj = new Date();
+            let newDateObj = new Date();
+            newDateObj.setTime(oldDateObj.getTime() + (15 * 60 * 1000));
+            let otp = generateOtp();
+            await OTP_User.create({
+                user_id: lastOtp.user_id,
+                otp: otp,
+                otp_token: new_token,
+                expiry_date: newDateObj,
+            })
+            // sendOtp(otp, user.phone_number);
+            return response.responseHelper(res, true, "Error", "Can't send otp");
+        }
+        return response.responseHelper(res, true, "You have requested for otp enough times", "wait for some time to request again");
     } catch (error) {
         console.log(error);
-        return response.responseHelper(res,false,"Error","Something went wrong");
+        return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
 
@@ -209,12 +233,12 @@ exports.ProfileInfo = async (req, res) => {
             isProfileUpdated:1,
         })
         let result = {
-            firstname: firstname,
-            lastname: lastname,
-            email: email,
-            DOB: DOB,
-            gender: gender,
-            referral_code: referral_code
+            firstname: addProfile.first_name,
+            lastname: addProfile.last_name,
+            email: addProfile.email,
+            DOB: addProfile.DOB,
+            gender: addProfile.gender,
+            referral_code: (addProfile.referral_code==null)?'':addProfile.referral_code,
         }
 
         if(!addProfile){
@@ -251,6 +275,108 @@ exports.SaveProfilePic= async (req,res) =>{
             return response.responseHelper(res, false, "Can't update profile pic", "Something is wrong");
         }
         return response.responseHelper(res,true,profilePic,"Successfully saved");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.FetchUser = async(req,res) =>{
+    const user_id=req.userId;
+    try {
+        let user=await User.findOne({
+            where:{
+                id:user_id,
+                is_deleted:0,
+            },
+            attributes:['first_name','last_name','phone']
+        })
+        if(!user){
+            return response.responseHelper(res, false, "User not found","Invalid user id");
+        } 
+        return response.responseHelper(res, true, user,"success");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong"); 
+    }
+}
+
+exports.FetchUserByOthers = async(req,res) =>{
+    const user_id=req.params.userId;
+    try {
+        let user=await User.findOne({
+            where:{
+                id:user_id,
+                is_deleted:0,
+            },
+            attributes:['first_name','rating','phone']
+             
+        })
+        if(!user){
+            return response.responseHelper(res, false, "User not found","Invalid user id");
+        } 
+        return response.responseHelper(res, true, user,"success");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong"); 
+    }
+}
+
+exports.ProfileUpdate = async (req, res) => {
+    const user_id = req.userId;
+    const firstname = req.body.firstname;
+    const lastname = req.body.lastname;
+    const email = req.body.email;
+    const DOB = req.body.dob;
+    const gender = req.body.gender;
+
+    if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
+        gender === "" || gender == null) {
+        return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
+    }
+    else if (!Validator.isEmail(email)) {
+        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+    }
+    try {
+        let userProfile = await User.findOne({
+            where: {
+                id: user_id,
+                is_deleted: 0
+            }
+        })
+        if (!userProfile) {
+            return response.responseHelper(res, true, "User not found", "Invalid id");
+        }
+        if(email!==userProfile.email){
+            let emailExist = await User.findOne({
+                where: {
+                    email: email,
+                    is_deleted: 0
+                }
+            })
+            if (emailExist) {
+                return response.responseHelper(res, true, "Email already exists", "Use different one");
+            }
+        }
+        let addProfile = await userProfile.update({
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            DOB:DOB,
+            gender:gender,
+        })
+        let result = {
+            firstname: addProfile.first_name,
+            lastname: addProfile.last_name,
+            email: addProfile.email,
+            DOB: addProfile.DOB,
+            gender: addProfile.gender,
+        }
+
+        if(!addProfile){
+            return response.responseHelper(res,false,"Can't update profile","Something is wrong");
+        }
+        return response.responseHelper(res,true,result,"Details are successfully added");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
