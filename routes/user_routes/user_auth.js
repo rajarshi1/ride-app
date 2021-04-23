@@ -21,6 +21,10 @@ router.get('/fetch-user',[
     authJwt.verifyToken, authJwt.verifyUser
 ], controller.FetchUser);
 
+router.post('/update-user',[
+    authJwt.verifyToken, authJwt.verifyUser
+], controller.ProfileUpdate);
+
 router.get('/fetch-user-by-others/:userId',controller.FetchUserByOthers);
 
 module.exports = router;

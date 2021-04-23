@@ -308,7 +308,7 @@ exports.FetchUserByOthers = async(req,res) =>{
                 id:user_id,
                 is_deleted:0,
             },
-            attributes:['first_name','rating']
+            attributes:['first_name','rating','phone']
              
         })
         if(!user){
@@ -318,5 +318,66 @@ exports.FetchUserByOthers = async(req,res) =>{
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong"); 
+    }
+}
+
+exports.ProfileUpdate = async (req, res) => {
+    const user_id = req.userId;
+    const firstname = req.body.firstname;
+    const lastname = req.body.lastname;
+    const email = req.body.email;
+    const DOB = req.body.dob;
+    const gender = req.body.gender;
+
+    if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
+        gender === "" || gender == null) {
+        return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
+    }
+    else if (!Validator.isEmail(email)) {
+        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+    }
+    try {
+        let userProfile = await User.findOne({
+            where: {
+                id: user_id,
+                is_deleted: 0
+            }
+        })
+        if (!userProfile) {
+            return response.responseHelper(res, true, "User not found", "Invalid id");
+        }
+        if(email!==userProfile.email){
+            let emailExist = await User.findOne({
+                where: {
+                    email: email,
+                    is_deleted: 0
+                }
+            })
+            if (emailExist) {
+                return response.responseHelper(res, true, "Email already exists", "Use different one");
+            }
+        }
+        let addProfile = await userProfile.update({
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            DOB:DOB,
+            gender:gender,
+        })
+        let result = {
+            firstname: addProfile.first_name,
+            lastname: addProfile.last_name,
+            email: addProfile.email,
+            DOB: addProfile.DOB,
+            gender: addProfile.gender,
+        }
+
+        if(!addProfile){
+            return response.responseHelper(res,false,"Can't update profile","Something is wrong");
+        }
+        return response.responseHelper(res,true,result,"Details are successfully added");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
