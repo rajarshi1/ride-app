@@ -202,4 +202,6 @@ db.vehicle_rc.belongsTo(db.document_status, {
     }
 })
 
+db.banks=require('../models/banks_model')(sequelize,Sequelize);
+
 module.exports = db

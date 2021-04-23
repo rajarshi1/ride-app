@@ -147,6 +147,9 @@ exports.VerifyOtp = async (req, res) => {
                     expiresIn: 86400  // expiry time 1 day
                 }
             );
+            await otpVerify.update({
+                is_used:1,
+            })
             return response.responseHelper(res, true, {
                 "driver_id": driver.id,
                 "access-token": token,
@@ -169,7 +172,6 @@ exports.ResendOtp = async (req, res) => {
         let lastOtp = await OTP_Driver.findOne({
             where: {
                 otp_token: token,
-
                 is_deleted: 0
             }
         })
@@ -199,7 +201,6 @@ exports.ResendOtp = async (req, res) => {
             new_token = uuidv4();
             const data = {
                 "token": new_token,
-                "driver_id": lastOtp.driver_id,
             }
             let oldDateObj = new Date();
             let newDateObj = new Date();
@@ -212,7 +213,7 @@ exports.ResendOtp = async (req, res) => {
                 expiry_date: newDateObj,
             })
             // sendOtp(otp, user.phone_number);
-            return response.responseHelper(res, true, data, "Otp sent successfully");
+            return response.responseHelper(res, true, "Error", "Can't send otp");
         }
         return response.responseHelper(res, true, "You have requested for otp enough times", "wait for some time to request again");
     } catch (error) {
