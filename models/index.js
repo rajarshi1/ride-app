@@ -10,11 +10,7 @@ const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         min: config.pool.min,
         acquire: config.pool.acquire,
         idle: config.pool.idle,
-    },
-    dialectOptions: {
-        useUTC: true, // for reading from database
-    },
-    timezone: '+00:00',
+    }
 });
 
 const db = {};
@@ -203,5 +199,26 @@ db.vehicle_rc.belongsTo(db.document_status, {
 })
 
 db.banks=require('../models/banks_model')(sequelize,Sequelize);
+
+db.driver.belongsTo(db.banks,{
+    foreignKey:{
+        name:'bank_id'
+    }
+})
+
+db.user_referrals=require('../models/user/user_referrals')(sequelize,Sequelize);
+db.driver_referrals=require('../models/driver/driver_referrals')(sequelize,Sequelize);
+
+db.user_referrals.belongsTo(db.users,{
+    foreignKey:{
+        name:"referred_by"
+    }
+})
+
+db.driver_referrals.belongsTo(db.driver,{
+    foreignKey:{
+        name:"referred_by"
+    }
+})
 
 module.exports = db
