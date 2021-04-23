@@ -10,11 +10,7 @@ const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         min: config.pool.min,
         acquire: config.pool.acquire,
         idle: config.pool.idle,
-    },
-    dialectOptions: {
-        useUTC: true, // for reading from database
-    },
-    timezone: '+00:00',
+    }
 });
 
 const db = {};
@@ -203,5 +199,11 @@ db.vehicle_rc.belongsTo(db.document_status, {
 })
 
 db.banks=require('../models/banks_model')(sequelize,Sequelize);
+
+db.driver.belongsTo(db.banks,{
+    foreignKey:{
+        name:'bank_id'
+    }
+})
 
 module.exports = db

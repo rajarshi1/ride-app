@@ -16,6 +16,7 @@ const Insurance = db.insurance;
 const ProfilePic = db.profile_pic;
 const VehiclePic = db.vehicle_pic;
 const RegistrationCertificate = db.vehicle_rc;
+const Banks = db.banks;
 
 generateOtp = () => {
     // const OTP = Math.floor(Math.random() * 900000) + 10000;
@@ -148,7 +149,7 @@ exports.VerifyOtp = async (req, res) => {
                 }
             );
             await otpVerify.update({
-                is_used:1,
+                is_used: 1,
             })
             return response.responseHelper(res, true, {
                 "driver_id": driver.id,
@@ -213,7 +214,7 @@ exports.ResendOtp = async (req, res) => {
                 expiry_date: newDateObj,
             })
             // sendOtp(otp, user.phone_number);
-            return response.responseHelper(res, true, "Error", "Can't send otp");
+            return response.responseHelper(res, true, data, "OTP resent successfully");
         }
         return response.responseHelper(res, true, "You have requested for otp enough times", "wait for some time to request again");
     } catch (error) {
@@ -275,7 +276,7 @@ exports.ProfileInfo = async (req, res) => {
             "email": addProfile.email,
             "dob": addProfile.DOB,
             "gender": addProfile.gender,
-            "referral_code": (addProfile.referral_code==null)?'':addProfile.referral_code
+            "referral_code": (addProfile.referral_code == null) ? '' : addProfile.referral_code
         }
         return response.responseHelper(res, true, result, "Details are successfully added");
     } catch (error) {
@@ -288,7 +289,7 @@ exports.SaveProfilePic = async (req, res) => {
     const driver_id = req.driverId;
     const profile_pic = req.body.profile_pic_url;
 
-    if (profile_pic === "" || profile_pic == null) {
+    if (profile_pic === "" || profile_pic == null || !Validator.isURL(profile_pic)) {
         return response.responseHelper(res, false, "Enter valid url", "invalid url passed");
     }
     try {
@@ -312,7 +313,8 @@ exports.SaveDrivingLicence = async (req, res) => {
     const dl_front = req.body.dl_front;
     const dl_back = req.body.dl_back;
 
-    if (dl_no === "" || dl_no == null || dl_front === "" || dl_front == null || dl_back === "" || dl_back == null) {
+    if (dl_no === "" || dl_no == null || dl_front === "" || dl_front == null || dl_back === "" || dl_back == null || !Validator.isURL(dl_front) ||
+        !Validator.isURL(dl_back)) {
         return response.responseHelper(res, false, "Enter valid data", "Invalid data passed");
     }
     try {
@@ -335,7 +337,7 @@ exports.SaveAddressProof = async (req, res) => {
     const driver_id = req.driverId;
     const address_proof = req.body.address_proof;
 
-    if (address_proof === "" || address_proof == null) {
+    if (address_proof === "" || address_proof == null || !Validator.isURL(address_proof)) {
         return response.responseHelper(res, false, "Enter valid url", "invalid url passed");
     }
     try {
@@ -363,6 +365,9 @@ exports.SaveVehiclePics = async (req, res) => {
     }
     try {
         for (i of vehicle_pics) {
+            if (!Validator.isURL(i)) {
+                continue;
+            }
             let vehiclePics = await VehiclePic.create({
                 driver_id: driver_id,
                 pic_url: i
@@ -382,7 +387,7 @@ exports.SaveRegistrationCertificate = async (req, res) => {
     const driver_id = req.driverId;
     const registration_certificate = req.body.registration_certificate;
 
-    if (registration_certificate === "" || registration_certificate == null) {
+    if (registration_certificate === "" || registration_certificate == null || !Validator.isURL(registration_certificate)) {
         return response.responseHelper(res, false, "Enter valid url", "invalid url passed");
     }
     try {
@@ -411,6 +416,9 @@ exports.SaveVehicleInsurance = async (req, res) => {
     }
     try {
         for (i of vehicle_insurance) {
+            if (!Validator.isURL(i)) {
+                continue;
+            }
             let vehicleInsurance = await Insurance.create({
                 driver_id: driver_id,
                 insurance_pic: i
@@ -430,19 +438,18 @@ exports.SaveVehicleInsurance = async (req, res) => {
 
 exports.SaveBankDetails = async (req, res) => {
     const driver_id = req.driverId;
-    const bankName = req.body.bankName;
+    const bankNameId = req.body.bankNameId;
     const accountHolderName = req.body.accountHolderName;
     const accountNumber = req.body.accountNumber;
     const confirmAccountNumber = req.body.confirmAccountNumber;
     const ifsc = req.body.ifsc;
-    const referral_code = req.body.referral_code;
 
-    if (bankName === "" || bankName == null || accountHolderName === "" || accountHolderName == null || accountNumber === "" || accountNumber == null || confirmAccountNumber === "" || confirmAccountNumber == null ||
-        ifsc === "" || ifsc == null) {
+    if (bankNameId === "" || bankNameId == null || accountHolderName === "" || accountHolderName == null || accountNumber === "" ||
+        accountNumber == null || confirmAccountNumber === "" || confirmAccountNumber == null || ifsc === "" || ifsc == null) {
         return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
     }
     else if (accountNumber != confirmAccountNumber) {
-        return response.responseHelper(res, true, "error", "Account numbers do not match");
+        return response.responseHelper(res, false, "error", "Account numbers do not match");
     }
     try {
         let driverProfile = await Drivers.findOne({
@@ -454,8 +461,17 @@ exports.SaveBankDetails = async (req, res) => {
         if (!driverProfile) {
             return response.responseHelper(res, true, "Driver not found", "Invalid id");
         }
+        let bank_name = await Banks.findOne({
+            where: {
+                id: bankNameId,
+                is_deleted: 0
+            }
+        })
+        if (!bank_name) {
+            return response.responseHelper(res, false, "Error", "Bank not found");
+        }
         let addBankDetails = await driverProfile.update({
-            bank_name: bankName,
+            bank_id: bank_name.name,
             account_holder_name: accountHolderName,
             account_number: accountNumber,
             ifsc_code: ifsc,
@@ -464,9 +480,141 @@ exports.SaveBankDetails = async (req, res) => {
         if (!addBankDetails) {
             return response.responseHelper(res, false, "Can't update bank details", "Something is wrong");
         }
-        return response.responseHelper(res, true, addBankDetails, "Details are successfully added");
+        let result = {
+            "id": addBankDetails.id,
+            "bank_name": addBankDetails.bank_name,
+            "account_holder_name": addBankDetails.account_holder_name,
+            "account_number": addBankDetails.account_number,
+            "ifsc_code": addBankDetails.ifsc_code
+        }
+        return response.responseHelper(res, true, result, "Details are successfully added");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
+
+exports.FetchBanks = async (req, res) => {
+    try {
+        let banks = await Banks.findAll({
+            where: {
+                is_deleted: 0
+            },
+            attributes: ['id', 'name']
+        })
+        if (!banks) {
+            return response.responseHelper(res, false, "Couldnot fetch banks", "Somethis is wrong");
+        }
+        return response.responseHelper(res, true, banks, "Successfully fetched");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+// exports.FetchDocumentation = async (req,res)=>{
+
+// }
+
+exports.FetchDriverProfileByOthers = async (req, res) => {
+    const driver_id = req.params.id;
+    try {
+        let driver= await Drivers.findOne({
+            where:{
+                id:driver_id,
+                is_deleted:0,
+            },
+            attributes:['id','first_name','last_name','vehicle_model',"rating",'vehical_no',"country_code","phone"]
+        })
+        if(!driver){
+            return response.responseHelper(res,false,"Driver not found","Invalid id");
+        }
+        driver.country_code='+'+driver.country_code;
+        return response.responseHelper(res,true,driver,"Success");
+    } catch (error) {
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.FetchProfile = async (req, res) => {
+    const driver_id = req.driverId;
+    try {
+        let driver= await Drivers.findOne({
+            where:{
+                id:driver_id,
+                is_deleted:0,
+            },
+            attributes:['id','first_name','last_name','email',"DOB",'gender']
+        })
+        if(!driver){
+            return response.responseHelper(res,false,"Driver not found","Invalid id");
+        }
+        return response.responseHelper(res,true,driver,"Success");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+exports.ProfileUpdate = async (req, res) => {
+    const driver_id = req.driverId;
+    const firstname = req.body.firstname;
+    const lastname = req.body.lastname;
+    const email = req.body.email;
+    const DOB = req.body.dob;
+    const gender = req.body.gender;
+
+    if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
+        gender === "" || gender == null) {
+        return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
+    }
+    else if (!Validator.isEmail(email)) {
+        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+    }
+    try {
+        let driverProfile = await Drivers.findOne({
+            where: {
+                id: driver_id,
+                is_deleted: 0
+            }
+        })
+        if (!driverProfile) {
+            return response.responseHelper(res, true, "Driver not found", "Invalid id");
+        }
+        if(email!== driverProfile.email){
+            let emailExist = await Drivers.findOne({
+                where: {
+                    email: email,
+                    is_deleted: 0
+                }
+            })
+            if (emailExist) {
+                return response.responseHelper(res, true, "Email already exists", "Use different one");
+            }   
+        }
+        let addProfile = await driverProfile.update({
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            DOB: DOB,
+            gender: gender,
+        })
+        if (!addProfile) {
+            return response.responseHelper(res, false, "Can't update profile", "Something is wrong");
+        }
+        let result = {
+            "id": addProfile.id,
+            "firstname": addProfile.first_name,
+            "lastname": addProfile.last_name,
+            "email": addProfile.email,
+            "dob": addProfile.DOB,
+            "gender": addProfile.gender,
+        }
+        return response.responseHelper(res, true, result, "Profile updated successfully");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+
+
