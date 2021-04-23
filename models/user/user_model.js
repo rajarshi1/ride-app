@@ -42,6 +42,10 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.STRING,
             allowNull:true,
         },
+        referred_by:{
+            type:Sequelize.INTEGER,
+            allowNull:true,
+        },
         is_deleted: {
             type: Sequelize.INTEGER,
             defaultValue: 0

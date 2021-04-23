@@ -94,6 +94,10 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.STRING,
             allowNull:true,
         },
+        referred_by:{
+            type:Sequelize.INTEGER,
+            allowNull:true,
+        },
         rating:{
             type:Sequelize.DOUBLE,
             defaultValue:0

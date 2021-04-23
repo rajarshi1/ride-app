@@ -17,6 +17,7 @@ const ProfilePic = db.profile_pic;
 const VehiclePic = db.vehicle_pic;
 const RegistrationCertificate = db.vehicle_rc;
 const Banks = db.banks;
+const DriverReferrals=db.driver_referrals;
 
 generateOtp = () => {
     // const OTP = Math.floor(Math.random() * 900000) + 10000;
@@ -231,7 +232,7 @@ exports.ProfileInfo = async (req, res) => {
     const DOB = req.body.dob;
     const gender = req.body.gender;
     const referral_code = req.body.referral_code;
-
+    
     if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
         gender === "" || gender == null) {
         return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
@@ -256,7 +257,24 @@ exports.ProfileInfo = async (req, res) => {
             }
         })
         if (!driverProfile) {
-            return response.responseHelper(res, true, "Driver not found", "Invalid id");
+            return response.responseHelper(res, false, "Driver not found", "Invalid id");
+        }
+        var refferedBy=null;
+        if(referral_code){
+            var isValidCode= await Drivers.findOne({
+                where:{
+                    referral_code:referral_code
+                }
+            })
+            if(!isValidCode){
+                return response.responseHelper(res, false, "Invalid Code", "Referral code not found");
+            }
+            var referral=await DriverReferrals.create({
+                referred_by:isValidCode.id,
+                referred_to:driver_id,
+                referral_code:referral_code,
+            })
+            refferedBy=referral.id;
         }
         let addProfile = await driverProfile.update({
             first_name: firstname,
@@ -264,6 +282,7 @@ exports.ProfileInfo = async (req, res) => {
             email: email,
             DOB: DOB,
             gender: gender,
+            referred_by:refferedBy,
             isProfileUpdated: 1,
         })
         if (!addProfile) {
@@ -276,7 +295,7 @@ exports.ProfileInfo = async (req, res) => {
             "email": addProfile.email,
             "dob": addProfile.DOB,
             "gender": addProfile.gender,
-            "referral_code": (addProfile.referral_code == null) ? '' : addProfile.referral_code
+            "referral_code": (referral_code == null || referral_code == "") ? '' : isValidCode.referral_code
         }
         return response.responseHelper(res, true, result, "Details are successfully added");
     } catch (error) {
