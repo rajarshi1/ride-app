@@ -288,7 +288,8 @@ exports.FetchUser = async(req,res) =>{
             where:{
                 id:user_id,
                 is_deleted:0,
-            }
+            },
+            attributes:['first_name','last_name','phone']
         })
         if(!user){
             return response.responseHelper(res, false, "User not found","Invalid user id");
