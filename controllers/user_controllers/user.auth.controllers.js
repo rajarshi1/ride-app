@@ -280,3 +280,43 @@ exports.SaveProfilePic= async (req,res) =>{
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
+
+exports.FetchUser = async(req,res) =>{
+    const user_id=req.userId;
+    try {
+        let user=await User.findOne({
+            where:{
+                id:user_id,
+                is_deleted:0,
+            }
+        })
+        if(!user){
+            return response.responseHelper(res, false, "User not found","Invalid user id");
+        } 
+        return response.responseHelper(res, true, user,"success");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong"); 
+    }
+}
+
+exports.FetchUserByOthers = async(req,res) =>{
+    const user_id=req.params.userId;
+    try {
+        let user=await User.findOne({
+            where:{
+                id:user_id,
+                is_deleted:0,
+            },
+            attributes:['first_name','rating']
+             
+        })
+        if(!user){
+            return response.responseHelper(res, false, "User not found","Invalid user id");
+        } 
+        return response.responseHelper(res, true, user,"success");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong"); 
+    }
+}

@@ -17,5 +17,11 @@ router.post('/update-profile-pic', [
     authJwt.verifyToken, authJwt.verifyUser
 ], controller.SaveProfilePic);
 
+router.get('/fetch-user',[
+    authJwt.verifyToken, authJwt.verifyUser
+], controller.FetchUser);
+
+router.get('/fetch-user-by-others/:userId',controller.FetchUserByOthers);
+
 module.exports = router;
 
