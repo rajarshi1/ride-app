@@ -7,15 +7,19 @@ const Validator = require('validator');
 const User = db.users;
 const OTP_User = db.otp_user;
 
-
 function generateOtp(){
     return '1111'
 }
 
 exports.SignIn = async (req, res) => {
+    const country_code = req.body.country_code
     const phone_no = req.body.phone_no;
-    if (phone_no == "" || phone_no == null) {
-        return response.responseHelper(res, true, "Field Required", "Phone number required");
+    const phoneno = /^\d{10}$/;
+    if (phone_no == "" || phone_no == null || country_code == "" || country_code == null  ) {
+        return response.responseHelper(res, true, "Field Required", "All fields required");
+    }
+    else if(phone_no.toString().length!=10 || !phone_no.match(phoneno)){
+        return response.responseHelper(res, true, "Invalid phone number", "Enter valid 10 digit mobile number");
     }
     try {
         let phnNumber = await User.findOne({
@@ -27,8 +31,14 @@ exports.SignIn = async (req, res) => {
             var user = phnNumber;
         }
         else {
+            var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var refCode = '';
+            var length = 6;
+            for (var i = length; i > 0; --i) refCode += chars[Math.floor(Math.random() * chars.length)];
             user = await User.create({
-                phone: phone_no
+                phone: phone_no,
+                country_code: country_code,
+                referral_code: refCode
             })
         }
         if (!user) {
@@ -37,8 +47,7 @@ exports.SignIn = async (req, res) => {
             let token = uuidv4();
             let date = new Date();
             const data = {
-                token,
-                user_id: user.id,
+                token
             }
 
             let oldDateObj = new Date();
@@ -52,7 +61,8 @@ exports.SignIn = async (req, res) => {
                 expiry_date: newDateObj,
             })
             // sendOtp(otp, user.phone_number);
-            return response.responseHelper(res, true, data, "Otp sent successfully");
+            //return response.responseHelper(res, false, Error, "Otp could not be sent");
+           return response.responseHelper(res, true, data, "Otp sent successfully");
         }
     } catch (error) {
         console.log(error);
@@ -68,6 +78,7 @@ exports.VerifyOtp = async (req, res) => {
         let otpVerify = await OTP_User.findOne({
             where: {
                 otp_token: token,
+                is_used:0,
                 is_deleted: 0,
             }
         })
@@ -102,6 +113,9 @@ exports.VerifyOtp = async (req, res) => {
                     expiresIn: 86400  // expiry time 1 day
                 }
             );
+            await otpVerify.update({
+                is_used:1
+            })
             return response.responseHelper(res, true, {
                 "user_id": user.id,
                 "access-token": token
@@ -194,10 +208,19 @@ exports.ProfileInfo = async (req, res) => {
             gender:gender,
             isProfileUpdated:1,
         })
+        let result = {
+            firstname: firstname,
+            lastname: lastname,
+            email: email,
+            DOB: DOB,
+            gender: gender,
+            referral_code: referral_code
+        }
+
         if(!addProfile){
             return response.responseHelper(res,false,"Can't update profile","Something is wrong");
         }
-        return response.responseHelper(res,true,addProfile,"Details are successfully added");
+        return response.responseHelper(res,true,result,"Details are successfully added");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");

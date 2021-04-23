@@ -46,6 +46,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
+        country_code:{
+            type:Sequelize.STRING,
+            allowNull:false,
+        }
     })
 
     return user
