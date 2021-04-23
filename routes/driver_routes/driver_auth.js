@@ -26,4 +26,32 @@ router.post('/save-address-proof', [
     authJwt.verifyToken, authJwt.verifyDriver
 ], controller.SaveAddressProof);
 
+router.post('/save-vehicle-pics', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveVehiclePics);
+
+router.post('/save-registration-certificate', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveRegistrationCertificate);
+
+router.post('/save-insurance', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveVehicleInsurance);
+
+router.post('/save-bank-details', [
+    authJwt.verifyToken, authJwt.verifyDriver
+], controller.SaveBankDetails);
+
+router.get('/fetch-banks',controller.FetchBanks);
+
+router.get('/fetch-driver-by-user/:id',controller.FetchDriverProfileByOthers);
+
+router.get('/fetch-profile',[
+    authJwt.verifyToken, authJwt.verifyDriver
+],controller.FetchProfile);
+
+router.post('/update-profile',[
+    authJwt.verifyToken, authJwt.verifyDriver
+],controller.ProfileUpdate);
+
 module.exports = router;

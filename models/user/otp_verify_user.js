@@ -28,6 +28,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TINYINT,
             defaultValue:0
         },
+        is_used: {
+            type: Sequelize.TINYINT,
+            defaultValue: 0
+        },
     })
 
     return otp_verify_user

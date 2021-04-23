@@ -10,7 +10,7 @@ const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         min: config.pool.min,
         acquire: config.pool.acquire,
         idle: config.pool.idle,
-    },
+    }
 });
 
 const db = {};
@@ -36,6 +36,8 @@ db.insurance = require('./driver/documents/insurance')(sequelize, Sequelize);
 db.profile_pic = require('./driver/documents/profile_pic')(sequelize, Sequelize);
 
 db.vehicle_pic = require('./driver/documents/vehicle_pic')(sequelize, Sequelize);
+
+db.vehicle_rc = require('./driver/documents/vehicle_rc')(sequelize,Sequelize);
 
 db.users = require('./user/user_model')(sequelize, Sequelize);
 
@@ -97,6 +99,14 @@ db.vehicle_pic.belongsTo(db.driver, {
     }
 })
 
+db.vehicle_rc.belongsTo(db.driver, {
+    foreignKey: {
+        name: "driver_id",
+        allowNull: false,
+        onDelete: 'CASCADE'
+    }
+})
+
 db.driver_documents.belongsTo(db.insurance, {
     foreignKey: {
         name: "insurance_id",
@@ -150,6 +160,49 @@ db.otp_user.belongsTo(db.users, {
         name: "user_id",
         allowNull: false,
         onDelete: 'CASCADE'
+    }
+})
+
+db.insurance.belongsTo(db.document_status, {
+    foreignKey: {
+        name: "status",
+    }
+})
+db.profile_pic.belongsTo(db.document_status, {
+    foreignKey: {
+        name: "status",
+    }
+})
+
+db.address_proof.belongsTo(db.document_status, {
+    foreignKey: {
+        name: "status",
+    }
+})
+
+db.driving_licence.belongsTo(db.document_status, {
+    foreignKey: {
+        name: "status",
+    }
+})
+
+db.vehicle_pic.belongsTo(db.document_status, {
+    foreignKey: {
+        name: "status",
+    }
+})
+
+db.vehicle_rc.belongsTo(db.document_status, {
+    foreignKey: {
+        name: "status",
+    }
+})
+
+db.banks=require('../models/banks_model')(sequelize,Sequelize);
+
+db.driver.belongsTo(db.banks,{
+    foreignKey:{
+        name:'bank_id'
     }
 })
 

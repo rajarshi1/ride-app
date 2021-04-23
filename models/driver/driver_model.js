@@ -12,6 +12,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
         },
+        country_code:{
+            type:Sequelize.STRING,
+            allowNull:false,
+            defaultValue:'91'
+        },
         first_name: {
             type: Sequelize.STRING,
         },
@@ -27,17 +32,34 @@ module.exports = (sequelize, Sequelize) => {
         gender:{
             type:Sequelize.INTEGER,  /// 1- male 2 - female 3- other
         },
-        bank_name:{
-            type:Sequelize.DATE,
+        bank_id:{
+            type:Sequelize.STRING,
             allowNull:true,
         },
         account_holder_name:{
             type:Sequelize.STRING,
             allowNull:true,
+            set(value) {
+                // Hashing the value with an appropriate cryptographic hash function is better.
+                this.setDataValue('account_holder_name', crypto.encrypt(value));
+            },
+            get() {
+                const storedValue = this.getDataValue('account_holder_name');
+                const value = crypto.decrypt(storedValue);
+                return value;
+            },
         },
         account_number:{
-            type:Sequelize.INTEGER,
+            type:Sequelize.STRING,
             allowNull:true,
+            set(value) {
+                this.setDataValue('account_number', crypto.encrypt(value));
+            },
+            get() {
+                const storedValue = this.getDataValue('account_number');
+                const value = crypto.decrypt(storedValue);
+                return value;
+            },
         },
         otp_verified:{
             type:Sequelize.TINYINT,
@@ -50,6 +72,15 @@ module.exports = (sequelize, Sequelize) => {
         ifsc_code:{
             type:Sequelize.STRING,
             allowNull:true,
+            set(value) {
+                // Hashing the value with an appropriate cryptographic hash function is better.
+                this.setDataValue('ifsc_code', crypto.encrypt(value));
+            },
+            get() {
+                const storedValue = this.getDataValue('ifsc_code');
+                const value = crypto.decrypt(storedValue);
+                return value;
+            },
         },
         vehical_no:{
             type:Sequelize.STRING,
@@ -62,6 +93,19 @@ module.exports = (sequelize, Sequelize) => {
         referral_code:{
             type:Sequelize.STRING,
             allowNull:true,
+        },
+        rating:{
+            type:Sequelize.DOUBLE,
+            defaultValue:0
+        },
+        vehicle_model:{
+            type:Sequelize.STRING,
+            allowNull:true,
+        },
+        driver_status:{
+            type:Sequelize.STRING,
+            allowNull:false,
+            defaultValue:'offline',
         },
         is_deleted: {
             type: Sequelize.INTEGER,

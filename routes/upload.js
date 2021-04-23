@@ -44,25 +44,8 @@ router.post('/docs-upload', singleUpload, (req, res) => {
             console.log(error);
             return response.responseHelper(res, false, "Failed to upload document", "Document failed to upload")
         }
-        return response.responseHelper(res, true, {location: `${protocol}://${hostUrl}/dev/api/${data.key}`}, "Document uploaded successful")
+        return response.responseHelper(res, true, {location: `https://comride-dev.s3.ap-south-1.amazonaws.com/documents/${data.key}`}, "Document uploaded successful")
     })
-})
-
-router.get('/docs/:path', function(req, res, next) {
-    const s = new AWS.S3({ params: { Bucket: process.env.AWS_BUCKET_NAME } })
-    var imgStream = s.getObject({
-        Bucket: 'comride-dev',
-        Key: `documents/${req.params.path}`
-    }).createReadStream();
-    let myFile = req.params.path.split('.')
-    const fileType = myFile[myFile.length - 1]
-    console.log(fileType);
-    if(fileType == 'pdf'){
-        res.set('Content-Type', 'application/pdf');
-    }else{
-        res.set('Content-Type', 'image/'+fileType);
-    }
-    imgStream.pipe(res);
 })
 
 module.exports = router;

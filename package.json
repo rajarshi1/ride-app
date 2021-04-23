@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.889.0",
+    "aws-serverless-express": "^3.4.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
@@ -25,9 +26,11 @@
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
     "sequelize": "^6.6.2",
-    "serverless": "^2.36.0",
-    "serverless-offline": "^6.9.0",
     "uuid": "^8.3.2",
     "validator": "^13.5.2"
+  },
+  "devDependencies": {
+    "serverless": "^2.17.0",
+    "serverless-offline": "^6.8.0"
   }
 }

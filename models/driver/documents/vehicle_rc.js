@@ -1,7 +1,7 @@
-const crypto = require('../crypto');
+const crypto = require('../../crypto');
 
 module.exports = (sequelize, Sequelize) => {
-    const otp_verify_driver = sequelize.define('otp_verify_driver', {
+    const vehicle_rc = sequelize.define('vehicle_rc', {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -12,21 +12,21 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: false,
         },
-        otp:{
-            type: Sequelize.INTEGER,
-            allowNull: false,
-        },
-        otp_token:{
+        rc_picture:{
             type: Sequelize.STRING,
             allowNull: false,
         },
-        expiry_date:{
-            type: Sequelize.DATE,
-            allowNull: false,
+        rc_no:{
+            type:Sequelize.STRING,
+            allowNull:true,
         },
-        is_used:{
-            type:Sequelize.TINYINT,
-            defaultValue:0,
+        valid_till:{
+            type:Sequelize.DATE,
+            allowNull:true,
+        },
+        status:{
+            type:Sequelize.INTEGER,
+            defaultValue:1
         },
         is_deleted: {
             type: Sequelize.INTEGER,
@@ -34,5 +34,5 @@ module.exports = (sequelize, Sequelize) => {
         },
     })
 
-    return otp_verify_driver
+    return vehicle_rc
 }
