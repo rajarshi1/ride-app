@@ -8,6 +8,10 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false,
             autoIncrement: true
         },
+        name: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
         username: {
             type: Sequelize.STRING,
             allowNull: false,
@@ -15,6 +19,22 @@ module.exports = (sequelize, Sequelize) => {
         email: {
             type: Sequelize.STRING,
             allowNull: false,
+        },
+        phone:{
+            type:Sequelize.STRING,
+            allowNull:false
+        },
+        user_type_id:{
+            type:Sequelize.INTEGER,
+            allowNull:false,  
+        },
+        district_id:{
+            type:Sequelize.INTEGER,
+            allowNull:false
+        },
+        state_id:{
+            type:Sequelize.INTEGER,
+            allowNull:false
         },
         password:{
             type:Sequelize.STRING,

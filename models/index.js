@@ -230,4 +230,38 @@ db.address.belongsTo(db.users,{
     }
 })
 
+db.user_types=require('../models/admin/user_types')(sequelize,Sequelize);
+
+db.states= require('../models/admin/states')(sequelize,Sequelize);
+
+db.districts=require('../models/admin/districts')(sequelize,Sequelize);
+
+db.document_types=require('../models/admin/document_types')(sequelize,Sequelize);
+
+db.user_permissions=require('../models/admin/user_type_permissions')(sequelize,Sequelize);
+
+db.admin.belongsTo(db.user_types,{
+    foreignKey:{
+        name:"user_type_id",
+    }
+})
+
+db.admin.belongsTo(db.districts,{
+    foreignKey:{
+        name:"district_id",
+    }
+})
+
+db.admin.belongsTo(db.states,{
+    foreignKey:{
+        name:"state_id",
+    }
+})
+
+db.user_permissions.belongsTo(db.document_types,{
+    foreignKey:{
+        name:"document_type_id"
+    }
+})
+
 module.exports = db

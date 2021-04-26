@@ -26,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
         vehicle_pic_id:{
             type:Sequelize.INTEGER,
         },
-        vahicle_rc_id:{
+        vehicle_rc_id:{
             type:Sequelize.INTEGER,
         },
         is_deleted: {
