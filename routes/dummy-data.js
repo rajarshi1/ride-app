@@ -30,7 +30,52 @@ router.post('/dummy-data', (req, res) => {
             { name: "State Bank of India" },
             { name: "UCO Bank" },
             { name: "Union Bank of India" }
-        ])
+        ]),
+
+        db.user_types.bulkCreate([
+            {
+                name:"Admin"
+            },
+            {
+                name:"State Admin"
+            },
+            {
+                name:"District Admin"
+            },
+        ]),
+
+        db.districts.bulkCreate([
+            { name: "Mysore" },
+            { name: "Banglore" },
+            { name: "Shivamogga" },
+            { name: "Uttara Kannada" },
+        ]),
+        
+        db.states.bulkCreate([
+            { name: "Karnataka" },
+            { name: "Bihar" },
+            { name: "Gujrath" },
+            { name: "Rajasthan" },
+        ]),
+        db.document_types.bulkCreate([
+            { name: "ProfilePic" },
+            { name: "Driving Licence" },
+            { name: "Insurance"},
+            { name: "Vehicle_RC" },
+            { name: "Vehicle_Pic" },
+            { name: "AddressProof" }
+        ]),
+
+        db.admin.create({
+            name:"XYZ",
+            username:"admin",
+            email:"admin@firstfloor.agency",
+            phone:"1231231234",
+            user_type_id:1,
+            district_id:1,
+            state_id:1,
+            password:"Pass@123",
+        })
         return response.responseHelper(res, true, "Success", "Added dummy data");
     }
     catch (err) {

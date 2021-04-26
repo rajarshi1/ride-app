@@ -77,8 +77,8 @@ exports.SignIn = async (req, res) => {
                 referral_code: refCode
             })
             let driverDocs = await DriverDocs.create({
-                driver_id:driver.id,
-                
+                driver_id: driver.id,
+
             })
             console.log(driverDocs);
         }
@@ -437,9 +437,9 @@ exports.SaveVehicleInsurance = async (req, res) => {
             insurance_pic: JSON.stringify(vehicle_insurance)
         })
         if (!result) {
-            return response.responseHelper(res,false,"Can't save insurance pic","Something is wrong");
+            return response.responseHelper(res, false, "Can't save insurance pic", "Something is wrong");
         }
-        result=JSON.parse(result.insurance_pic);
+        result = JSON.parse(result.insurance_pic);
         return response.responseHelper(res, true, result, "Success")
     } catch (error) {
 
@@ -625,6 +625,40 @@ exports.ProfileUpdate = async (req, res) => {
     }
 }
 
-// exports.FetchDocumentation = async (req, res) => {
+exports.FetchDocumentation = async (req, res) => {
+    const driver_id = req.driverId;
+    var doc_status = {};
+    try {
+        let driver = await Drivers.findOne({
+            where: {
+                id: driver_id,
+                is_deleted: 0,
+            }
+        })
+        if (!driver) {
+            return response.responseHelper(res, false, "Driver not found", "Invalid driver id");
+        }
+        let result = await DriverDocs.findOne({
+            where: {
+                driver_id: driver_id,
+                is_deleted: 0
+            }
+        })
+        if (!result) {
+            return response.responseHelper(res, false, "Documents Not found", "Invalid driver id");
+        }
+        (result.profile_pic_id == null) ? doc_status.profile_pic = 'pending' : doc_status.profile_pic = 'completed';
+        (result.dl_id == null) ? doc_status.driving_licence = 'pending' : doc_status.driving_licence = 'completed';
+        (result.address_proof_id == null) ? doc_status.address_proof = 'pending' : doc_status.address_proof = 'completed';
+        (result.vehicle_rc_id == null) ? doc_status.vehicle_rc = 'pending' : doc_status.vehicle_rc = 'completed';
+        (result.vehicle_pic_id == null) ? doc_status.vehicle_pic = 'pending' : doc_status.vehicle_pic = 'completed';
+        (result.insurance_id == null) ? doc_status.insurance = 'pending' : doc_status.insurance = 'completed';
+        (driver.bank_id == null || driver.account_number == null) ? doc_status.bank_details = 'pending' : doc_status.bank_details = 'completed';
 
-// }
+        return response.responseHelper(res,true,doc_status,"Successfully fetched driver documents status");
+    } catch (error) {
+        console.log(error);
+        return response.responseHelper(res, false, "Error", "Something went wrong");
+    }
+}
+ 

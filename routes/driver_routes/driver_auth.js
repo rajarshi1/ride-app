@@ -54,4 +54,8 @@ router.post('/update-profile',[
     authJwt.verifyToken, authJwt.verifyDriver
 ],controller.ProfileUpdate);
 
+router.get('/fetch-documentation',[
+    authJwt.verifyToken, authJwt.verifyDriver
+],controller.FetchDocumentation);
+
 module.exports = router;
