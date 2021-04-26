@@ -51,10 +51,10 @@ exports.SignIn = async (req, res) => {
     console.log(req.body);
     const phoneno = /^\d{10}$/;
     if (phone_no == "" || phone_no == null || countryCode === "" || countryCode == null) {
-        return response.responseHelper(res, true, "Field Required", "All fields required");
+        return response.responseHelper(res, false, "Field Required", "All fields required");
     }
     else if ((phone_no.toString()).length != 10 || !phone_no.match(phoneno)) {
-        return response.responseHelper(res, true, "Invalid phone no", "Enter valid phone no");
+        return response.responseHelper(res, false, "Invalid phone no", "Enter valid phone no");
     }
     try {
         let phnNumber = await Drivers.findOne({
@@ -83,7 +83,7 @@ exports.SignIn = async (req, res) => {
             console.log(driverDocs);
         }
         if (!driver) {
-            return response.responseHelper(res, true, "Can't create user", "Somethis went wrong");
+            return response.responseHelper(res, false, "Can't create user", "Somethis went wrong");
         } else {
             let token = uuidv4();
             let date = new Date();
@@ -172,7 +172,7 @@ exports.ResendOtp = async (req, res) => {
     let token = req.body.token;
     let date = new Date();
     if (token == "" || token == null) {
-        return response.responseHelper(res, true, "Field required", "Invalid token passed");
+        return response.responseHelper(res, false, "Field required", "Invalid token passed");
     }
     try {
         let lastOtp = await OTP_Driver.findOne({
@@ -182,7 +182,7 @@ exports.ResendOtp = async (req, res) => {
             }
         })
         if (!lastOtp) {
-            return response.responseHelper(res, true, "Invalid token", "Wrong token");
+            return response.responseHelper(res, false, "Invalid token", "Wrong token");
         }
         let dateNow = new Date().toISOString().split('T')[0];
         let time = new Date().toISOString().split('T')[1];
@@ -221,7 +221,7 @@ exports.ResendOtp = async (req, res) => {
             // sendOtp(otp, user.phone_number);
             return response.responseHelper(res, true, data, "OTP resent successfully");
         }
-        return response.responseHelper(res, true, "You have requested for otp enough times", "wait for some time to request again");
+        return response.responseHelper(res, false, "You have requested for otp enough times", "wait for some time to request again");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
@@ -242,7 +242,7 @@ exports.ProfileInfo = async (req, res) => {
         return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
     }
     else if (!Validator.isEmail(email)) {
-        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+        return response.responseHelper(res, false, "Invalid email", "email format inavlid");
     }
     try {
         let emailExist = await Drivers.findOne({
@@ -252,7 +252,7 @@ exports.ProfileInfo = async (req, res) => {
             }
         })
         if (emailExist) {
-            return response.responseHelper(res, true, "Email already exists", "Use different one");
+            return response.responseHelper(res, false, "Email already exists", "Use different one");
         }
         let driverProfile = await Drivers.findOne({
             where: {
@@ -471,7 +471,7 @@ exports.SaveBankDetails = async (req, res) => {
             }
         })
         if (!driverProfile) {
-            return response.responseHelper(res, true, "Driver not found", "Invalid id");
+            return response.responseHelper(res, false, "Driver not found", "Invalid id");
         }
         let bank_name = await Banks.findOne({
             where: {
@@ -577,7 +577,7 @@ exports.ProfileUpdate = async (req, res) => {
         return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
     }
     else if (!Validator.isEmail(email)) {
-        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+        return response.responseHelper(res, false, "Invalid email", "email format inavlid");
     }
     try {
         let driverProfile = await Drivers.findOne({
@@ -587,7 +587,7 @@ exports.ProfileUpdate = async (req, res) => {
             }
         })
         if (!driverProfile) {
-            return response.responseHelper(res, true, "Driver not found", "Invalid id");
+            return response.responseHelper(res, false, "Driver not found", "Invalid id");
         }
         if (email !== driverProfile.email) {
             let emailExist = await Drivers.findOne({
@@ -597,7 +597,7 @@ exports.ProfileUpdate = async (req, res) => {
                 }
             })
             if (emailExist) {
-                return response.responseHelper(res, true, "Email already exists", "Use different one");
+                return response.responseHelper(res, false, "Email already exists", "Use different one");
             }
         }
         let addProfile = await driverProfile.update({

@@ -264,4 +264,10 @@ db.user_permissions.belongsTo(db.document_types,{
     }
 })
 
+db.user_permissions.belongsTo(db.user_types,{
+    foreignKey:{
+        name:"user_type_id"
+    }
+})
+
 module.exports = db
