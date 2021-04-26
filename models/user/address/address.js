@@ -41,6 +41,10 @@ module.exports = (sequelize, Sequelize) => {
             type:Sequelize.STRING,
             allowNull: false
         },
+        tags:{
+            type:Sequelize.STRING, 
+            defaultValue:'other'
+        },
         is_deleted: {
             type: Sequelize.INTEGER,
             defaultValue: 0

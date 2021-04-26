@@ -38,6 +38,9 @@ app.use('/api/user',userAuth)
 const dummy= require('./routes/dummy-data');
 app.use('/api/driver',dummy)
 
+const addressAPI= require('./routes/user_routes/user_address_route');
+app.use('/api/address',addressAPI);
+
 const admin= require('./routes/admin_routes/admin_auth');
 app.use('/api/admin',admin);
 // home route
