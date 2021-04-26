@@ -6,6 +6,12 @@ const Validator = require('validator');
 const Admin = db.admin;
 const User = db.users;
 const Drivers = db.driver;
+const DriverDocs=db.driver_documents;
+const DrivingLicence=db.driving_licence;
+const Insurance = db.insurance;
+const ProfilePic = db.profile_pic;
+const VehiclePic = db.vehicle_pic;
+const vehicle_rc = db.vehicle_rc;
 
 exports.Login = async(req,res) => {
     
@@ -116,7 +122,7 @@ exports.NotApprovedDrivers = async(req,res) =>{
     }
 }
 
-exports.NotApprovedDriver = async(req,res) =>{
+exports.NotApprovedDriverInfo = async(req,res) =>{
     const driver_id = req.body.driver_id;
     try {
         let driver = await Drivers.findOne({
@@ -129,7 +135,24 @@ exports.NotApprovedDriver = async(req,res) =>{
         if (!driver) {
             return response.responseHelper(res, false, "Driver not found", "Invalid id");
         }
-        return response.responseHelper(res, true, driver, "Success");
+        let driverDocs= await DriverDocs.findOne({
+            where:{
+                driver_id:driver.id,
+                is_deleted:0,
+            },
+            include:[
+                {model:DrivingLicence,where: { driver_id: driver.id }},
+                {model:Insurance, where: { driver_id: driver.id }},
+                {model:ProfilePic, where: { driver_id: driver.id }},
+                {model:VehiclePic, where: { driver_id: driver.id }},
+                {model:vehicle_rc, where: { driver_id: driver.id }},
+
+            ]
+        })
+        return response.responseHelper(res, true, {
+            "driver":driver,
+            "driver_docs":driverDocs
+        }, "Success");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");

@@ -11,6 +11,6 @@ router.get('/view-drivers', controller.ViewDrivers)
 
 router.get('/view-notapproved-drivers', controller.NotApprovedDrivers)
 
-router.get('/view-notapproved-driver', controller.NotApprovedDriver)
+router.get('/view-notapproved-driver-info', controller.NotApprovedDriverInfo)
 
 module.exports = router;
