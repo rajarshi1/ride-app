@@ -110,7 +110,7 @@ db.vehicle_rc.belongsTo(db.driver, {
 db.driver_documents.belongsTo(db.insurance, {
     foreignKey: {
         name: "insurance_id",
-        allowNull: false,
+        allowNull: true,
         onDelete: 'CASCADE'
     }
 })
@@ -118,7 +118,7 @@ db.driver_documents.belongsTo(db.insurance, {
 db.driver_documents.belongsTo(db.profile_pic, {
     foreignKey: {
         name: "profile_pic_id",
-        allowNull: false,
+        allowNull: true,
         onDelete: 'CASCADE'
     }
 })
@@ -126,7 +126,7 @@ db.driver_documents.belongsTo(db.profile_pic, {
 db.driver_documents.belongsTo(db.driving_licence, {
     foreignKey: {
         name: "dl_id",
-        allowNull: false,
+        allowNull: true,
         onDelete: 'CASCADE'
     }
 })
@@ -134,7 +134,7 @@ db.driver_documents.belongsTo(db.driving_licence, {
 db.driver_documents.belongsTo(db.address_proof, {
     foreignKey: {
         name: "address_proof_id",
-        allowNull: false,
+        allowNull: true,
         onDelete: 'CASCADE'
     }
 })
@@ -142,15 +142,15 @@ db.driver_documents.belongsTo(db.address_proof, {
 db.driver_documents.belongsTo(db.vehicle_pic, {
     foreignKey: {
         name: "vehicle_pic_id",
-        allowNull: false,
+        allowNull: true,
         onDelete: 'CASCADE'
     }
 })
 
-db.driver_documents.belongsTo(db.document_status, {
+db.driver_documents.belongsTo(db.vehicle_rc, {
     foreignKey: {
-        name: "status_id",
-        allowNull: false,
+        name: "vehicle_rc_id",
+        allowNull: true,
         onDelete: 'CASCADE'
     }
 })

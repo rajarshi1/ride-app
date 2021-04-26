@@ -17,7 +17,7 @@ const ProfilePic = db.profile_pic;
 const VehiclePic = db.vehicle_pic;
 const RegistrationCertificate = db.vehicle_rc;
 const Banks = db.banks;
-const DriverReferrals=db.driver_referrals;
+const DriverReferrals = db.driver_referrals;
 
 generateOtp = () => {
     // const OTP = Math.floor(Math.random() * 900000) + 10000;
@@ -76,7 +76,11 @@ exports.SignIn = async (req, res) => {
                 country_code: countryCode,
                 referral_code: refCode
             })
-
+            let driverDocs = await DriverDocs.create({
+                driver_id:driver.id,
+                
+            })
+            console.log(driverDocs);
         }
         if (!driver) {
             return response.responseHelper(res, true, "Can't create user", "Somethis went wrong");
@@ -232,7 +236,7 @@ exports.ProfileInfo = async (req, res) => {
     const DOB = req.body.dob;
     const gender = req.body.gender;
     const referral_code = req.body.referral_code;
-    
+
     if (firstname === "" || firstname == null || lastname === "" || lastname == null || email === "" || email == null || DOB === "" || DOB == null ||
         gender === "" || gender == null) {
         return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
@@ -259,22 +263,25 @@ exports.ProfileInfo = async (req, res) => {
         if (!driverProfile) {
             return response.responseHelper(res, false, "Driver not found", "Invalid id");
         }
-        var refferedBy=null;
-        if(referral_code){
-            var isValidCode= await Drivers.findOne({
-                where:{
-                    referral_code:referral_code
+        var refferedBy = null;
+        if (referral_code) {
+            var isValidCode = await Drivers.findOne({
+                where: {
+                    referral_code: referral_code,
+                    id: {
+                        [Op.ne]: [driver_id]
+                    }
                 }
             })
-            if(!isValidCode){
+            if (!isValidCode) {
                 return response.responseHelper(res, false, "Invalid Code", "Referral code not found");
             }
-            var referral=await DriverReferrals.create({
-                referred_by:isValidCode.id,
-                referred_to:driver_id,
-                referral_code:referral_code,
+            var referral = await DriverReferrals.create({
+                referred_by: isValidCode.id,
+                referred_to: driver_id,
+                referral_code: referral_code,
             })
-            refferedBy=referral.id;
+            refferedBy = referral.id;
         }
         let addProfile = await driverProfile.update({
             first_name: firstname,
@@ -282,7 +289,7 @@ exports.ProfileInfo = async (req, res) => {
             email: email,
             DOB: DOB,
             gender: gender,
-            referred_by:refferedBy,
+            referred_by: refferedBy,
             isProfileUpdated: 1,
         })
         if (!addProfile) {
@@ -376,27 +383,20 @@ exports.SaveAddressProof = async (req, res) => {
 exports.SaveVehiclePics = async (req, res) => {
     const driver_id = req.driverId;
     console.log(req.body);
-    var vehicle_pics = [];
-    vehicle_pics = req.body.vehicle_pics;
-    let result = [];
-    if (!vehicle_pics.length > 0) {
+    var vehicle_pics = req.body;
+    if (Object.keys(vehicle_pics).length === 0 && vehicle_pics.constructor === Object) {
         return response.responseHelper(res, false, "provide valid url", "Field required")
     }
     try {
-        for (i of vehicle_pics) {
-            if (!Validator.isURL(i)) {
-                continue;
-            }
-            let vehiclePics = await VehiclePic.create({
-                driver_id: driver_id,
-                pic_url: i
-            })
-            if (!vehiclePics) {
-                continue;
-            }
-            result.push(vehiclePics);
+        let result = await VehiclePic.create({
+            driver_id: driver_id,
+            pic_url: JSON.stringify(vehicle_pics)
+        })
+        if (!result) {
+            return response.responseHelper(res, false, "Can't store vehicle pics", "Something is wrong");
         }
-        return response.responseHelper(res, true, { "data": result }, "Success")
+        result = JSON.parse(result.pic_url)
+        return response.responseHelper(res, true, result, "Success")
     } catch (error) {
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
@@ -427,27 +427,20 @@ exports.SaveRegistrationCertificate = async (req, res) => {
 exports.SaveVehicleInsurance = async (req, res) => {
     const driver_id = req.driverId;
     //console.log(req.body);
-    var vehicle_insurance = [];
-    vehicle_insurance = req.body.vehicle_insurance;
-    let result = [];
-    if (!vehicle_insurance.length > 0) {
+    var vehicle_insurance = req.body;
+    if (Object.keys(vehicle_insurance).length === 0 && vehicle_insurance.constructor === Object) {
         return response.responseHelper(res, false, "provide valid url", "Field required")
     }
     try {
-        for (i of vehicle_insurance) {
-            if (!Validator.isURL(i)) {
-                continue;
-            }
-            let vehicleInsurance = await Insurance.create({
-                driver_id: driver_id,
-                insurance_pic: i
-            })
-            if (!vehicleInsurance) {
-                continue;
-            }
-            result.push(vehicleInsurance);
+        let result = await Insurance.create({
+            driver_id: driver_id,
+            insurance_pic: JSON.stringify(vehicle_insurance)
+        })
+        if (!result) {
+            return response.responseHelper(res,false,"Can't save insurance pic","Something is wrong");
         }
-        return response.responseHelper(res, true, { "data": result }, "Success")
+        result=JSON.parse(result.insurance_pic);
+        return response.responseHelper(res, true, result, "Success")
     } catch (error) {
 
         return response.responseHelper(res, false, "Error", "Something went wrong");
@@ -531,25 +524,21 @@ exports.FetchBanks = async (req, res) => {
     }
 }
 
-// exports.FetchDocumentation = async (req,res)=>{
-
-// }
-
 exports.FetchDriverProfileByOthers = async (req, res) => {
     const driver_id = req.params.id;
     try {
-        let driver= await Drivers.findOne({
-            where:{
-                id:driver_id,
-                is_deleted:0,
+        let driver = await Drivers.findOne({
+            where: {
+                id: driver_id,
+                is_deleted: 0,
             },
-            attributes:['id','first_name','last_name','vehicle_model',"rating",'vehical_no',"country_code","phone"]
+            attributes: ['id', 'first_name', 'last_name', 'vehicle_model', "rating", 'vehical_no', "country_code", "phone"]
         })
-        if(!driver){
-            return response.responseHelper(res,false,"Driver not found","Invalid id");
+        if (!driver) {
+            return response.responseHelper(res, false, "Driver not found", "Invalid id");
         }
-        driver.country_code='+'+driver.country_code;
-        return response.responseHelper(res,true,driver,"Success");
+        driver.country_code = '+' + driver.country_code;
+        return response.responseHelper(res, true, driver, "Success");
     } catch (error) {
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
@@ -558,17 +547,17 @@ exports.FetchDriverProfileByOthers = async (req, res) => {
 exports.FetchProfile = async (req, res) => {
     const driver_id = req.driverId;
     try {
-        let driver= await Drivers.findOne({
-            where:{
-                id:driver_id,
-                is_deleted:0,
+        let driver = await Drivers.findOne({
+            where: {
+                id: driver_id,
+                is_deleted: 0,
             },
-            attributes:['id','first_name','last_name','email',"DOB",'gender']
+            attributes: ['id', 'first_name', 'last_name', 'email', "DOB", 'gender']
         })
-        if(!driver){
-            return response.responseHelper(res,false,"Driver not found","Invalid id");
+        if (!driver) {
+            return response.responseHelper(res, false, "Driver not found", "Invalid id");
         }
-        return response.responseHelper(res,true,driver,"Success");
+        return response.responseHelper(res, true, driver, "Success");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
@@ -600,7 +589,7 @@ exports.ProfileUpdate = async (req, res) => {
         if (!driverProfile) {
             return response.responseHelper(res, true, "Driver not found", "Invalid id");
         }
-        if(email!== driverProfile.email){
+        if (email !== driverProfile.email) {
             let emailExist = await Drivers.findOne({
                 where: {
                     email: email,
@@ -609,7 +598,7 @@ exports.ProfileUpdate = async (req, res) => {
             })
             if (emailExist) {
                 return response.responseHelper(res, true, "Email already exists", "Use different one");
-            }   
+            }
         }
         let addProfile = await driverProfile.update({
             first_name: firstname,
@@ -636,4 +625,6 @@ exports.ProfileUpdate = async (req, res) => {
     }
 }
 
+// exports.FetchDocumentation = async (req, res) => {
 
+// }

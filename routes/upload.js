@@ -44,7 +44,7 @@ router.post('/docs-upload', singleUpload, (req, res) => {
             console.log(error);
             return response.responseHelper(res, false, "Failed to upload document", "Document failed to upload")
         }
-        return response.responseHelper(res, true, {location: `https://comride-dev.s3.ap-south-1.amazonaws.com/documents/${data.key}`}, "Document uploaded successful")
+        return response.responseHelper(res, true, {location: `https://comride-dev.s3.ap-south-1.amazonaws.com/${data.key}`}, "Document uploaded successful")
     })
 })
 
