@@ -18,10 +18,10 @@ exports.SignIn = async (req, res) => {
     const phone_no = req.body.phone_no;
     const phoneno = /^\d{10}$/;
     if (phone_no == "" || phone_no == null || country_code == "" || country_code == null  ) {
-        return response.responseHelper(res, true, "Field Required", "All fields required");
+        return response.responseHelper(res, false, "Field Required", "All fields required");
     }
     else if(phone_no.toString().length!=10 || !phone_no.match(phoneno)){
-        return response.responseHelper(res, true, "Invalid phone number", "Enter valid 10 digit mobile number");
+        return response.responseHelper(res, false, "Invalid phone number", "Enter valid 10 digit mobile number");
     }
     try {
         let phnNumber = await User.findOne({
@@ -134,7 +134,7 @@ exports.ResendOtp = async (req, res) => {
     let token = req.body.token;
     let date = new Date();
     if (token == "" || token == null) {
-        return response.responseHelper(res, true, "Field required", "Invalid token passed");
+        return response.responseHelper(res, false, "Field required", "Invalid token passed");
     }
     try {
         let lastOtp = await OTP_User.findOne({
@@ -144,7 +144,7 @@ exports.ResendOtp = async (req, res) => {
             }
         })
         if (!lastOtp) {
-            return response.responseHelper(res, true, "Invalid token", "Wrong token");
+            return response.responseHelper(res, false, "Invalid token", "Wrong token");
         }
         let dateNow = new Date().toISOString().split('T')[0];
         let time = new Date().toISOString().split('T')[1];
@@ -181,9 +181,9 @@ exports.ResendOtp = async (req, res) => {
                 expiry_date: newDateObj,
             })
             // sendOtp(otp, user.phone_number);
-            return response.responseHelper(res, true, "Error", "Can't send otp");
+            return response.responseHelper(res, true, data, "Otp resent successfully");
         }
-        return response.responseHelper(res, true, "You have requested for otp enough times", "wait for some time to request again");
+        return response.responseHelper(res, false, "You have requested for otp enough times", "wait for some time to request again");
     } catch (error) {
         console.log(error);
         return response.responseHelper(res, false, "Error", "Something went wrong");
@@ -204,7 +204,7 @@ exports.ProfileInfo = async (req, res) => {
         return response.responseHelper(res, false, "Fill all the required fields", "Required fields cannot be empty");
     }
     else if (!Validator.isEmail(email)) {
-        return response.responseHelper(res, true, "Invalid email", "email format inavlid");
+        return response.responseHelper(res, false, "Invalid email", "email format inavlid");
     }
     try {
         let emailExist = await User.findOne({
@@ -214,7 +214,7 @@ exports.ProfileInfo = async (req, res) => {
             }
         })
         if (emailExist) {
-            return response.responseHelper(res, true, "Email already exists", "Use different one");
+            return response.responseHelper(res, false, "Email already exists", "Use different one");
         }
         let userProfile = await User.findOne({
             where: {
@@ -223,7 +223,7 @@ exports.ProfileInfo = async (req, res) => {
             }
         })
         if (!userProfile) {
-            return response.responseHelper(res, true, "User not found", "Invalid id");
+            return response.responseHelper(res, false, "User not found", "Invalid id");
         }
         var refferedBy=null;
         if(referral_code){
