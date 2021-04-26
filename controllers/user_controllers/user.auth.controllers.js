@@ -229,7 +229,10 @@ exports.ProfileInfo = async (req, res) => {
         if(referral_code){
             var isValidCode= await User.findOne({
                 where:{
-                    referral_code:referral_code
+                    referral_code:referral_code,
+                    id:{
+                       [Op.ne]:[user_id] 
+                    }
                 }
             })
             if(!isValidCode){
@@ -400,3 +403,7 @@ exports.ProfileUpdate = async (req, res) => {
         return response.responseHelper(res, false, "Error", "Something went wrong");
     }
 }
+
+// exports.SaveAddress = async (req,res){
+
+// }
