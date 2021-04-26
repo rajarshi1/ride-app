@@ -223,15 +223,8 @@ db.driver.belongsTo(db.driver_referrals,{
 })
 
 db.address=require('../models/user/address/address')(sequelize,Sequelize);
-db.user_address=require('../models/user/address/user_address')(sequelize,Sequelize);
 
 db.address.belongsTo(db.users,{
-    foreignKey:{
-        name:"user_id"
-    }
-})
-
-db.user_address.belongsTo(db.users,{
     foreignKey:{
         name:"user_id"
     }
