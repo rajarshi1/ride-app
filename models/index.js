@@ -209,6 +209,7 @@ db.driver.belongsTo(db.banks,{
 db.user_referrals=require('../models/user/user_referrals')(sequelize,Sequelize);
 db.driver_referrals=require('../models/driver/driver_referrals')(sequelize,Sequelize);
 
+
 db.users.belongsTo(db.user_referrals,{
     foreignKey:{
         name:"referred_by"
@@ -218,6 +219,21 @@ db.users.belongsTo(db.user_referrals,{
 db.driver.belongsTo(db.driver_referrals,{
     foreignKey:{
         name:"referred_by"
+    }
+})
+
+db.address=require('../models/user/address/address')(sequelize,Sequelize);
+db.user_address=require('../models/user/address/user_address')(sequelize,Sequelize);
+
+db.address.belongsTo(db.users,{
+    foreignKey:{
+        name:"user_id"
+    }
+})
+
+db.user_address.belongsTo(db.users,{
+    foreignKey:{
+        name:"user_id"
     }
 })
 
