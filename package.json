@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"nodemon app.js"
+    "start": "nodemon app.js"
   },
   "repository": {
     "type": "git",
@@ -14,16 +14,24 @@
   "author": "firstfloor",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.889.0",
+    "aws-serverless-express": "^3.4.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
     "sequelize": "^6.6.2",
     "uuid": "^8.3.2",
     "validator": "^13.5.2"
+  },
+  "devDependencies": {
+    "serverless": "^2.17.0",
+    "serverless-offline": "^6.8.0"
   }
 }

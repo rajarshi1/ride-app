@@ -22,9 +22,27 @@ app.use(cors({
     }
 }));
 
-// const user = require('./routes/auth')
-// app.use('/api/account', user)
+//driver auth
 
+const driverAuth = require('./routes/driver_routes/driver_auth');
+app.use('/api/driver',driverAuth)
+
+
+const upload= require('./routes/upload');
+app.use('/api',upload);
+
+//user auth
+const userAuth = require('./routes/user_routes/user_auth');
+app.use('/api/user',userAuth)
+
+const dummy= require('./routes/dummy-data');
+app.use('/api/driver',dummy)
+
+const addressAPI= require('./routes/user_routes/user_address_route');
+app.use('/api/address',addressAPI);
+
+const admin= require('./routes/admin_routes/admin_auth');
+app.use('/api/admin',admin);
 // home route
 app.use('/', (req, res) => {
     res.status(200).json({

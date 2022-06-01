@@ -1,0 +1,30 @@
+service: comride-backend
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 128
+  timeout: 10
+  stage: dev
+  region: ap-south-1
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'sqs:GetQueueUrl'
+        - 'sqs:SendMessage'
+        - 'sqs:SetQueueAttributes'
+      Resource: arn:aws:sqs:ap-south-1:009467873476:comride.fifo
+
+
+plugins:
+  - serverless-offline
+
+functions:
+  api:
+    handler: lambda.universal
+    events:
+      - http: ANY {proxy+}
+      - http: ANY /
