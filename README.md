@@ -40,7 +40,7 @@ And do your best to impress us! Simple solutions are best, but the more you can 
  
  # Notes
  
-    Routes - 
+   Routes - 
     
     1. GET route for relatively smaller directory size - /directory-info 
     2. GET route for very-large directory - /for-large-directories 
