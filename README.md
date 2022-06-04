@@ -45,19 +45,23 @@ And do your best to impress us! Simple solutions are best, but the more you can 
     1. GET route for relatively smaller directory size - /directory-info 
     2. GET route for very-large directory - /for-large-directories 
     
-    My approach to solving this assignment was to first solve it for a smaller directory structure and I have implemented that solution on '/directory-info' with all 
-    the required parameters. When solving for iterating through very large directories I faced a number of issues with regards to the NodeJS event-loop and asynchronous code. 
-    I tried various approaches but there were short comings in all of them. The solution I have implemented currently on '/for-large-directories' solves the problem to some 
-    extent and logs all directory items for 100k+ directory size (tested upto size - 2k items).   
+    My approach to solving this assignment was to first solve it for a smaller directory structure 
+    and I have implemented that solution on '/directory-info' with all the required parameters. When 
+    solving for iterating through very large directories I faced a number of issues with regards to 
+    the NodeJS event-loop and asynchronous code. I tried various approaches but there were short 
+    comings in all of them. The solution I have implemented currently on '/for-large-directories' 
+    solves the problem to some extent and logs all directory items for 100k+ directory size 
+    (tested upto size - 2k items).   
  
 # Proposed Improvements
     
-    1. Solve the issue of fs.readdir() getting blocked when reading very large directory size and refactor it to include all the attributes in the return value.  
+    1. Solve the issue of fs.readdir() getting blocked when reading very large directory size 
+        and refactor it to include all the attributes in the return value.  
     2. Maybe use/implement streaming.  
     
 # Technology Stack
   
-  Implemented REST with - 
+  REST with - 
   
   NodeJS <br />
   ExpressJS 
